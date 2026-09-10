@@ -1,15 +1,15 @@
 <Solution>
   <Folder Name="/Aspire/">
-    <Project Path="Template.WebApp.AppHost/Template.WebApp.AppHost.csproj" DefaultStartup="true" />
+    <Project Path="src/Template.WebApp.AppHost/Template.WebApp.AppHost.csproj" DefaultStartup="true" />
   </Folder>
   <Folder Name="/Application/">
-    <Project Path="Template.WebApp.Core/Template.WebApp.Core.csproj" />
-    <Project Path="Template.WebApp.Host/Template.WebApp.Host.csproj" />
+    <Project Path="src/Template.WebApp.Core/Template.WebApp.Core.csproj" />
+    <Project Path="src/Template.WebApp.Host/Template.WebApp.Host.csproj" />
   </Folder>
   <Folder Name="/Test/">
-    <Project Path="Template.WebApp.UnitTests/Template.WebApp.UnitTests.csproj" />
-    <Project Path="Template.WebApp.IntegrationTests/Template.WebApp.IntegrationTests.csproj" />
-    <Project Path="Template.WebApp.E2ETests/Template.WebApp.E2ETests.csproj" />
+    <Project Path="tests/Template.WebApp.UnitTests/Template.WebApp.UnitTests.csproj" />
+    <Project Path="tests/Template.WebApp.IntegrationTests/Template.WebApp.IntegrationTests.csproj" />
+    <Project Path="tests/Template.WebApp.E2ETests/Template.WebApp.E2ETests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
