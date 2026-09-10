@@ -1,10 +1,17 @@
 namespace Template.WebApp.Services;
 
 using Template.WebApp.Accessors;
+using Template.WebApp.Infrastructure.Data;
 using Template.WebApp.Models.Entity;
 
 public sealed class DataService
 {
+    // 並べ替えに使える列。SqlHelper.NormalizeSortがこの集合以外を弾く
+    private static readonly string[] SortKeys = ["Name", "Value", "CreatedAt"];
+
+    // 一致しなかったときの並び順。テーブルの主キー
+    private const string DefaultSortColumn = "Id";
+
     private readonly IDialect dialect;
 
     private readonly DataAccessor dataAccessor;
@@ -28,7 +35,7 @@ public sealed class DataService
         dataAccessor.CountAsync(name, cancellationToken);
 
     public ValueTask<List<DataEntity>> QueryPageAsync(string? name, string? sort, bool desc, int offset, int size, CancellationToken cancellationToken = default) =>
-        dataAccessor.QueryPageAsync(name, sort, desc, offset, size, cancellationToken);
+        dataAccessor.QueryPageAsync(name, SqlHelper.NormalizeSort(SortKeys, DefaultSortColumn, sort, desc), offset, size, cancellationToken);
 
     public ValueTask<List<DataEntity>> QueryAllAsync(CancellationToken cancellationToken = default) =>
         dataAccessor.QueryAllAsync(cancellationToken);
