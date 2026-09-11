@@ -1,7 +1,9 @@
 @model AccountLoginForm
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     Layout = "_LayoutSimple";
     ViewData.SetTitle("ログイン");
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
 }
 
 <div class="d-flex justify-content-center">
@@ -11,23 +13,50 @@
         </div>
         <div class="card-body">
             <form method="post" asp-antiforgery="true">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row mb-3">
                     <label asp-for="Name" class="col-form-label col-md-4">ID</label>
                     <div class="col-md-8">
-                        <input type="text" asp-for="Name" class="form-control" maxlength="@Length.Name" />
+                        <input type="text" asp-for="Name" class="form-control" maxlength="@Length.Name" autocomplete="username webauthn" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <label asp-for="Password" class="col-form-label col-md-4">パスワード</label>
                     <div class="col-md-8">
-                        <input type="password" asp-for="Password" class="form-control" />
+                        <input type="password" asp-for="Password" class="form-control" autocomplete="current-password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="row mb-0">
+                <div class="row mb-3">
+                    <div class="col-md-8 offset-md-4">
+                        <div class="form-check">
+                            <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">ログイン状態を保持する</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
                     <div class="col-md-12 text-center">
                         <button type="submit" class="btn btn-primary">ログイン</button>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" name="__passkeySubmit" class="btn btn-link">パスキーでログイン</button>
+                        <passkey-submit
+                            operation="Request"
+                            name="Passkey"
+                            email-name="Name"
+                            request-token-name="@tokens.HeaderName"
+                            request-token-value="@tokens.RequestToken">
+                        </passkey-submit>
+                    </div>
+                </div>
+                <hr />
+                <div class="row mb-0">
+                    <div class="col-md-12 text-center">
+                        <a asp-action="Register" asp-route-returnUrl="@Context.Request.Query["returnUrl"]">新規登録</a>
                     </div>
                 </div>
             </form>
@@ -37,4 +66,5 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script type="module" src="~/js/passkey-submit.js" asp-append-version="true"></script>
 }

@@ -18,7 +18,7 @@ public sealed class DataCrudTests : PageTest
         await Page.GotoAsync(factory.ServerAddress + "/account/login");
         await Page.FillAsync("#Name", "admin");
         await Page.FillAsync("#Password", "admin");
-        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン", Exact = true }).ClickAsync();
         await Expect(Page).ToHaveTitleAsync(new Regex("ダッシュボード.*"));
 
         // Act

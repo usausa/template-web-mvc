@@ -32,6 +32,8 @@
                         <li if="User.IsAuthenticated()" class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">@User.Identity!.Name</a>
                             <div class="dropdown-menu dropdown-menu-end" role="menu">
+                                <a class="dropdown-item" asp-area="default" asp-controller="Account" asp-action="Passkeys">パスキー管理</a>
+                                <div class="dropdown-divider"></div>
                                 <form asp-area="default" asp-controller="Account" asp-action="Logout" method="post">
                                     <button type="submit" class="dropdown-item">ログアウト</button>
                                 </form>

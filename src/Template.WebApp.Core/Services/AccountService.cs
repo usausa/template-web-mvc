@@ -2,11 +2,13 @@ namespace Template.WebApp.Services;
 
 using Template.WebApp.Accessors;
 using Template.WebApp.Infrastructure.Security;
-using Template.WebApp.Models.Entity;
 
+// テーブル作成と初期アカウントの投入。認証そのものはIdentity Core(SignInManager)が担う
 public sealed class AccountService
 {
     private readonly AccountAccessor accountAccessor;
+
+    private readonly AccountPasskeyAccessor accountPasskeyAccessor;
 
     private readonly IPasswordProvider passwordProvider;
 
@@ -14,10 +16,12 @@ public sealed class AccountService
 
     public AccountService(
         AccountAccessor accountAccessor,
+        AccountPasskeyAccessor accountPasskeyAccessor,
         IPasswordProvider passwordProvider,
         TimeProvider timeProvider)
     {
         this.accountAccessor = accountAccessor;
+        this.accountPasskeyAccessor = accountPasskeyAccessor;
         this.passwordProvider = passwordProvider;
         this.timeProvider = timeProvider;
     }
@@ -25,23 +29,19 @@ public sealed class AccountService
     public async ValueTask InitializeAsync(string initialName, string initialPassword, string initialRole)
     {
         accountAccessor.Create();
+        accountPasskeyAccessor.Create();
 
         // Seed initial account
         var count = await accountAccessor.CountAsync();
         if (count == 0)
         {
-            await accountAccessor.InsertAsync(initialName, passwordProvider.Generate(initialPassword), initialRole, timeProvider.GetLocalNow().DateTime);
+            await accountAccessor.InsertAsync(
+                initialName,
+                initialName.ToUpperInvariant(),
+                passwordProvider.Generate(initialPassword),
+                initialRole,
+                Guid.NewGuid().ToString("N"),
+                timeProvider.GetLocalNow().DateTime);
         }
-    }
-
-    public async ValueTask<AccountEntity?> AuthenticateAsync(string name, string password)
-    {
-        var account = await accountAccessor.QueryByNameAsync(name);
-        if (account is null)
-        {
-            return null;
-        }
-
-        return passwordProvider.Match(password, account.Password) ? account : null;
     }
 }

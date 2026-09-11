@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -35,6 +36,7 @@ using Template.WebApp.Accessors;
 using Template.WebApp.Host.Application.Telemetry;
 using Template.WebApp.Host.Infrastructure.ExceptionHandling;
 using Template.WebApp.Host.Infrastructure.HealthChecks;
+using Template.WebApp.Host.Infrastructure.Identity;
 using Template.WebApp.Host.Infrastructure.Logging;
 using Template.WebApp.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Storage;
@@ -200,9 +202,36 @@ public static class ApplicationExtensions
         var setting = builder.Configuration.GetSection("Auth").Get<AuthSetting>()!;
         var isDevelopment = builder.Environment.IsDevelopment();
 
+        // Identity Core + 自前ストア(Smart.Data.Accessor)。EF Coreは使わない。
+        // 認証の流れ(Cookie / パスキー / ロックアウト)はIdentityに任せ、利用者の保存だけをAccountStoreで行う
         builder.Services
-            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(options =>
+            .AddAuthentication(static options =>
+            {
+                options.DefaultScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddIdentityCookies();
+
+        builder.Services
+            .AddIdentityCore<AccountEntity>(static options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+                // 開発用初期パスワード(admin)を許容する緩和設定。運用時はポリシーに合わせて強化する
+                options.Password.RequiredLength = 4;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddUserStore<AccountStore>()
+            .AddClaimsPrincipalFactory<AccountClaimsPrincipalFactory>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
+
+        // ハッシュは既存のIPasswordProviderへ委譲する(AddIdentityCoreの既定登録を上書き)
+        builder.Services.AddScoped<IPasswordHasher<AccountEntity>, AccountPasswordHasher>();
+
+        builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/account/login";
                 options.AccessDeniedPath = "/error/403";
@@ -244,9 +273,19 @@ public static class ApplicationExtensions
                 };
             });
 
-        builder.Services.AddAuthorization(static options =>
+        // 認可。Auth:Enabled=false(既定)のときは[Authorize]を匿名でも通し、認証なしで使える状態にする
+        builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy(Policies.Administrator, static policy => policy.RequireRole(Roles.Administrator));
+            if (setting.Enabled)
+            {
+                options.AddPolicy(Policies.Administrator, static policy => policy.RequireRole(Roles.Administrator));
+            }
+            else
+            {
+                var allowAll = new AuthorizationPolicyBuilder().RequireAssertion(static _ => true).Build();
+                options.DefaultPolicy = allowAll;
+                options.AddPolicy(Policies.Administrator, allowAll);
+            }
         });
 
         return builder;
@@ -544,6 +583,9 @@ public static class ApplicationExtensions
 
         // MVC
         app.MapControllers();
+
+        // パスキー(WebAuthnオプション発行)
+        app.MapPasskeyEndpoints();
 
         // Health
         app.MapHealthChecks(HealthEndpointPath);

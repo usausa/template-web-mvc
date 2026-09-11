@@ -1,0 +1,25 @@
+@model PasskeyRenameForm
+@{
+    ViewData.SetTitle("パスキーの名前変更");
+}
+
+<h4>パスキーの名前変更</h4>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" asp-antiforgery="true">
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">名前</label>
+                <input type="text" asp-for="Name" class="form-control" maxlength="@Length.Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a class="btn btn-secondary" asp-action="Passkeys">戻る</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

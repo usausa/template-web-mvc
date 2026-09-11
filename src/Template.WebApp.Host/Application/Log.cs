@@ -22,6 +22,17 @@ internal static partial class Log
     [LoggerMessage(Level = LogLevel.Information, Message = "Telemetry: otelEndPoint=[{otelEndPoint}], prometheusUri=[{prometheusUri}]")]
     public static partial void InfoServiceSettingsTelemetry(this ILogger logger, string otelEndPoint, string prometheusUri);
 
+    // Account
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "User logged in.")]
+    public static partial void InfoUserLoggedIn(this ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "User logged out.")]
+    public static partial void InfoUserLoggedOut(this ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "User created a new account.")]
+    public static partial void InfoUserCreated(this ILogger logger);
+
     // Error
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception.")]

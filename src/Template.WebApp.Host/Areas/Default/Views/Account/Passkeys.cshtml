@@ -1,0 +1,63 @@
+@using System.Buffers.Text
+@using Microsoft.AspNetCore.Identity
+@model IList<UserPasskeyInfo>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    ViewData.SetTitle("パスキー管理");
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+    var maxCount = (int)ViewBag.MaxPasskeyCount;
+}
+
+<h4>パスキー管理</h4>
+
+<div class="row">
+    <div class="col-md-8">
+        @if (Model.Count > 0)
+        {
+            <table class="table">
+                <tbody>
+                    @foreach (var passkey in Model)
+                    {
+                        var credentialId = Base64Url.EncodeToString(passkey.CredentialId);
+                        <tr>
+                            <td class="align-middle">@(passkey.Name ?? "名前未設定のパスキー")</td>
+                            <td class="align-middle text-muted">@passkey.CreatedAt.LocalDateTime.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td class="text-end">
+                                <a class="btn btn-outline-primary" asp-action="RenamePasskey" asp-route-id="@credentialId">名前変更</a>
+                                <form class="d-inline" method="post" asp-action="DeletePasskey" asp-antiforgery="true">
+                                    <input type="hidden" name="credentialId" value="@credentialId" />
+                                    <button type="submit" class="btn btn-outline-danger">削除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>登録済みのパスキーはありません。</p>
+        }
+
+        <form method="post" asp-action="AddPasskey" asp-antiforgery="true">
+            @if (Model.Count >= maxCount)
+            {
+                <div class="alert alert-warning">登録可能なパスキーの上限に達しています。追加するには既存のパスキーを削除してください。</div>
+            }
+            else
+            {
+                <button type="submit" name="__passkeySubmit" class="btn btn-primary">パスキーを追加</button>
+                <passkey-submit
+                    operation="Create"
+                    name="Input"
+                    request-token-name="@tokens.HeaderName"
+                    request-token-value="@tokens.RequestToken">
+                </passkey-submit>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/passkey-submit.js" asp-append-version="true"></script>
+}

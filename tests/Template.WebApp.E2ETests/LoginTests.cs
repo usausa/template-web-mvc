@@ -21,7 +21,7 @@ public sealed class LoginTests : PageTest
 
         await Page.FillAsync("#Name", "admin");
         await Page.FillAsync("#Password", "admin");
-        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン", Exact = true }).ClickAsync();
 
         // Assert
         await Expect(Page).ToHaveTitleAsync(new Regex("ダッシュボード.*"));
@@ -39,7 +39,7 @@ public sealed class LoginTests : PageTest
         await Page.GotoAsync(factory.ServerAddress + "/account/login");
         await Page.FillAsync("#Name", "admin");
         await Page.FillAsync("#Password", "wrong");
-        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログイン", Exact = true }).ClickAsync();
 
         // Assert
         await Expect(Page.GetByText("ログインに失敗しました")).ToBeVisibleAsync();
