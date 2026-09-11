@@ -10,7 +10,6 @@ using Template.WebApp.Accessors;
 // UserManagerはSetXxxAsyncでエンティティを書き換えたあとUpdateAsyncで保存する規約のため、
 // SetXxxAsyncはメモリ上の変更のみ、Create / Update / DeleteでDBへ反映する
 public sealed class AccountStore :
-    IUserStore<AccountEntity>,
     IUserPasswordStore<AccountEntity>,
     IUserSecurityStampStore<AccountEntity>,
     IUserLockoutStore<AccountEntity>,
@@ -124,7 +123,7 @@ public sealed class AccountStore :
     }
 
     public Task<string?> GetPasswordHashAsync(AccountEntity user, CancellationToken cancellationToken) =>
-        Task.FromResult<string?>(user.Password.Length > 0 ? Convert.ToBase64String(user.Password) : null);
+        Task.FromResult(user.Password.Length > 0 ? Convert.ToBase64String(user.Password) : null);
 
     public Task<bool> HasPasswordAsync(AccountEntity user, CancellationToken cancellationToken) =>
         Task.FromResult(user.Password.Length > 0);
@@ -147,7 +146,7 @@ public sealed class AccountStore :
     //--------------------------------------------------------------------------------
 
     public Task<DateTimeOffset?> GetLockoutEndDateAsync(AccountEntity user, CancellationToken cancellationToken) =>
-        Task.FromResult(user.LockoutEnd.HasValue ? new DateTimeOffset(user.LockoutEnd.Value) : (DateTimeOffset?)null);
+        Task.FromResult<DateTimeOffset?>(user.LockoutEnd.HasValue ? new DateTimeOffset(user.LockoutEnd.Value) : null);
 
     public Task SetLockoutEndDateAsync(AccountEntity user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
     {
