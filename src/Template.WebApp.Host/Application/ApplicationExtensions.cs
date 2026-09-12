@@ -517,7 +517,7 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton(new DefaultPasswordProviderOptions());
         builder.Services.AddSingleton<IPasswordProvider, DefaultPasswordProvider>();
 
-        // Service & Usecase
+        // Service
         builder.Services.AddCoreServices();
 
         // Report

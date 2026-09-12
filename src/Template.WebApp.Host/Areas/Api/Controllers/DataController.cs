@@ -7,14 +7,10 @@ public sealed class DataController : BaseApiController
 {
     private DataService DataService { get; }
 
-    private DataUsecase DataUsecase { get; }
-
     public DataController(
-        DataService dataService,
-        DataUsecase dataUsecase)
+        DataService dataService)
     {
         DataService = dataService;
-        DataUsecase = dataUsecase;
     }
 
     //--------------------------------------------------------------------------------
@@ -31,7 +27,7 @@ public sealed class DataController : BaseApiController
         [FromQuery][Range(0, Int32.MaxValue)] int page = 0,
         [FromQuery][Range(1, 100)] int size = 20)
     {
-        var result = await DataUsecase.QueryPageAsync(name, sort, desc, page, size, cancellationToken);
+        var result = await DataService.QueryPageAsync(name, sort, desc, page, size, cancellationToken);
         return Ok(new DataListResponse(result.Total, result.Page, result.Size, result.Items.Select(DataMapper.ToResponse).ToList()));
     }
 

@@ -14,14 +14,10 @@ public sealed class DataController : BaseDefaultController
 
     private DataService DataService { get; }
 
-    private DataUsecase DataUsecase { get; }
-
     public DataController(
-        DataService dataService,
-        DataUsecase dataUsecase)
+        DataService dataService)
     {
         DataService = dataService;
-        DataUsecase = dataUsecase;
     }
 
     //--------------------------------------------------------------------------------
@@ -35,7 +31,7 @@ public sealed class DataController : BaseDefaultController
         {
             c.Page = Math.Max(c.Page, 1);
 
-            var paged = await DataUsecase.QueryPagedAsync(c.Name, c.Sort, c.Desc, c.SetSize(PageSize), cancellationToken);
+            var paged = await DataService.QueryPagedAsync(c.Name, c.Sort, c.Desc, c.SetSize(PageSize), cancellationToken);
             if (paged.IsOver)
             {
                 return RedirectToAction(nameof(List), new { c.Go, c.Name, c.Sort, c.Desc, Page = paged.TotalPage });
