@@ -6,7 +6,6 @@ using Smart.AspNetCore.Mvc;
 
 using Template.WebApp.Host.Areas.Default.Models;
 using Template.WebApp.Host.Infrastructure.Reports;
-using Template.WebApp.Host.Mappers;
 
 public sealed class DataController : BaseDefaultController
 {
@@ -102,7 +101,7 @@ public sealed class DataController : BaseDefaultController
             return NotFound();
         }
 
-        return View(DataMapper.ToForm(entity));
+        return View(entity.ToForm());
     }
 
     [HttpPost("~/[controller]/[action]/{id:long}")]

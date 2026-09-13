@@ -1,7 +1,6 @@
 namespace Template.WebApp.Host.Areas.Api.Controllers;
 
 using Template.WebApp.Host.Areas.Api.Models;
-using Template.WebApp.Host.Mappers;
 
 public sealed class DataController : BaseApiController
 {
@@ -38,7 +37,7 @@ public sealed class DataController : BaseApiController
     public async ValueTask<IActionResult> Get(long id)
     {
         var entity = await DataService.QueryAsync(id);
-        return entity is not null ? Ok(DataMapper.ToResponse(entity)) : NotFound();
+        return entity is not null ? Ok(entity.ToResponse()) : NotFound();
     }
 
     //--------------------------------------------------------------------------------
