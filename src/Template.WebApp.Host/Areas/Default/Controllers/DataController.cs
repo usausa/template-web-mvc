@@ -3,11 +3,12 @@ namespace Template.WebApp.Host.Areas.Default.Controllers;
 using CsvHelper;
 
 using Smart.AspNetCore.Mvc;
+using Smart.Mapper;
 
 using Template.WebApp.Host.Areas.Default.Models;
 using Template.WebApp.Host.Infrastructure.Reports;
 
-public sealed class DataController : BaseDefaultController
+public sealed partial class DataController : BaseDefaultController
 {
     private const int PageSize = 15;
 
@@ -92,6 +93,9 @@ public sealed class DataController : BaseDefaultController
     // Edit
     //--------------------------------------------------------------------------------
 
+    [Mapper]
+    private static partial DataEditForm ToForm(DataEntity entity);
+
     [HttpGet("~/[controller]/[action]/{id:long}")]
     public async ValueTask<IActionResult> Edit(long id)
     {
@@ -101,7 +105,7 @@ public sealed class DataController : BaseDefaultController
             return NotFound();
         }
 
-        return View(entity.ToForm());
+        return View(ToForm(entity));
     }
 
     [HttpPost("~/[controller]/[action]/{id:long}")]

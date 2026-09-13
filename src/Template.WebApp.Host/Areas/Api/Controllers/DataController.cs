@@ -1,8 +1,10 @@
 namespace Template.WebApp.Host.Areas.Api.Controllers;
 
+using Smart.Mapper;
+
 using Template.WebApp.Host.Areas.Api.Models;
 
-public sealed class DataController : BaseApiController
+public sealed partial class DataController : BaseApiController
 {
     private DataService DataService { get; }
 
@@ -16,6 +18,9 @@ public sealed class DataController : BaseApiController
     // Query
     //--------------------------------------------------------------------------------
 
+    [Mapper]
+    private static partial DataResponse ToResponse(DataEntity entity);
+
     [HttpGet]
     [ProducesResponseType<DataListResponse>(StatusCodes.Status200OK)]
     public async ValueTask<IActionResult> List(
@@ -27,7 +32,7 @@ public sealed class DataController : BaseApiController
         [FromQuery][Range(1, 100)] int size = 20)
     {
         var result = await DataService.QueryPageAsync(name, sort, desc, page, size, cancellationToken);
-        return Ok(new DataListResponse(result.Total, result.Page, result.Size, result.Items.Select(DataMapper.ToResponse).ToList()));
+        return Ok(new DataListResponse(result.Total, result.Page, result.Size, result.Items.Select(ToResponse).ToList()));
     }
 
     // ReSharper disable once RouteTemplates.RouteTokenNotResolved
@@ -37,7 +42,7 @@ public sealed class DataController : BaseApiController
     public async ValueTask<IActionResult> Get(long id)
     {
         var entity = await DataService.QueryAsync(id);
-        return entity is not null ? Ok(entity.ToResponse()) : NotFound();
+        return entity is not null ? Ok(ToResponse(entity)) : NotFound();
     }
 
     //--------------------------------------------------------------------------------
