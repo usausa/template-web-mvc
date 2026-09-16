@@ -33,6 +33,11 @@ internal static partial class Log
     [LoggerMessage(Level = LogLevel.Information, Message = "User created a new account.")]
     public static partial void InfoUserCreated(this ILogger logger);
 
+    // Request
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Long execution. method=[{method}], route=[{route}], elapsed=[{elapsed}]")]
+    public static partial void WarnLongExecution(this ILogger logger, string method, string route, long elapsed);
+
     // Error
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception.")]

@@ -35,6 +35,7 @@ using Smart.Data;
 using Template.WebApp.Accessors;
 using Template.WebApp.Host.Application.Telemetry;
 using Template.WebApp.Host.Infrastructure.ExceptionHandling;
+using Template.WebApp.Host.Infrastructure.Filters;
 using Template.WebApp.Host.Infrastructure.HealthChecks;
 using Template.WebApp.Host.Infrastructure.Identity;
 using Template.WebApp.Host.Infrastructure.Logging;
@@ -345,6 +346,7 @@ public static class ApplicationExtensions
         {
             options.Threshold = 10_000;
         });
+        builder.Services.AddSingleton<RequestMetricsActionFilter>();
 
         // MVC
         builder.Services
@@ -530,6 +532,8 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<LogSetting>>().Value);
         builder.Services.AddOptions<AuthSetting>().BindConfiguration("Auth").ValidateDataAnnotations().ValidateOnStart();
         builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<AuthSetting>>().Value);
+        builder.Services.AddOptions<TelemetrySetting>().BindConfiguration("Telemetry").ValidateDataAnnotations().ValidateOnStart();
+        builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<TelemetrySetting>>().Value);
 
         return builder;
     }
