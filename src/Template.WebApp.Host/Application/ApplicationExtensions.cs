@@ -339,14 +339,22 @@ public static class ApplicationExtensions
     public static WebApplication UseCompression(this WebApplication app)
     {
         var setting = app.Services.GetRequiredService<CompressionSetting>();
-        if (setting.Response)
+        if (setting.Response || setting.Request)
         {
-            app.UseResponseCompression();
-        }
+            app.UseWhen(
+                static context => context.Request.Path.StartsWithSegments(ApiPathPrefix, StringComparison.OrdinalIgnoreCase),
+                b =>
+                {
+                    if (setting.Response)
+                    {
+                        b.UseResponseCompression();
+                    }
 
-        if (setting.Request)
-        {
-            app.UseRequestDecompression();
+                    if (setting.Request)
+                    {
+                        b.UseRequestDecompression();
+                    }
+                });
         }
 
         return app;
