@@ -52,6 +52,9 @@ app.LogStartupInformation();
 // Forwarded headers
 app.UseForwardedHeaders();
 
+// Security headers
+app.UseSecurityHeaders();
+
 // W3C log
 app.UseW3CLog();
 
