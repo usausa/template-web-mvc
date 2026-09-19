@@ -52,24 +52,24 @@ app.LogStartupInformation();
 // Forwarded headers
 app.UseForwardedHeaders();
 
+// W3C log
+app.UseW3CLog();
+
 // Error handler
 app.UseErrorHandler();
-
-// Compression
-app.UseCompression();
-
-// Logging
-app.UseLogging();
 
 // Routing (explicit call to route re-executed error page requests)
 app.UseRouting();
 
+// Compression
+app.UseCompression();
+
+// HTTP log
+app.UseHttpLog();
+
 // Authentication
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Logging context
-app.UseLoggingContext();
 
 // End point
 app.MapEndpoints();
