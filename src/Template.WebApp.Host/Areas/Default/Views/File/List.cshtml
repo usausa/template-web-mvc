@@ -30,7 +30,7 @@
             <td>@entry</td>
             <td class="text-center">
                 <a asp-action="Download" asp-route-path="@entry" class="btn btn-sm btn-outline-secondary">ダウンロード</a>
-                <form if="User.IsAdministrator()" asp-action="Delete" asp-route-path="@entry" method="post" class="d-inline" onsubmit="return confirm('ファイルを削除します。よろしいですか?')">
+                <form if="User.IsAdministrator()" asp-action="Delete" asp-route-path="@entry" method="post" class="d-inline" data-confirm="ファイルを削除します。よろしいですか?">
                     <button type="submit" class="btn btn-sm btn-outline-danger">削除</button>
                 </form>
             </td>

@@ -24,3 +24,10 @@ $(function () {
         }
     });
 });
+
+// Confirm behavior (送信前の確認。メッセージは data-confirm)
+$(function () {
+    $(document).on("submit", "form[data-confirm]", function () {
+        return confirm($(this).data("confirm"));
+    });
+});

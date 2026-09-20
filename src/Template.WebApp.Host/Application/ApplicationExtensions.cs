@@ -39,6 +39,7 @@ using Template.WebApp.Host.Infrastructure.Filters;
 using Template.WebApp.Host.Infrastructure.HealthChecks;
 using Template.WebApp.Host.Infrastructure.Identity;
 using Template.WebApp.Host.Infrastructure.Logging;
+using Template.WebApp.Host.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Storage;
 
@@ -169,6 +170,9 @@ public static class ApplicationExtensions
         // Add services to the container.
         builder.Services.AddHttpContextAccessor();
 
+        // CSP nonce
+        builder.Services.AddScoped<CspNonce>();
+
         // XForward
         builder.Services.Configure<ForwardedHeadersOptions>(static options =>
         {
@@ -191,19 +195,7 @@ public static class ApplicationExtensions
         }
 
         // Headers
-        app.Use(static (context, next) =>
-        {
-            context.Response.OnStarting(static state =>
-            {
-                var headers = ((HttpContext)state).Response.Headers;
-                headers.XContentTypeOptions = "nosniff";
-                headers.XFrameOptions = "DENY";
-                headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                return Task.CompletedTask;
-            }, context);
-
-            return next(context);
-        });
+        app.UseMiddleware<SecurityHeadersMiddleware>();
 
         return app;
     }
@@ -603,6 +595,8 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<LogSetting>>().Value);
         builder.Services.AddOptions<CompressionSetting>().BindConfiguration("Compression").ValidateDataAnnotations().ValidateOnStart();
         builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<CompressionSetting>>().Value);
+        builder.Services.AddOptions<CspSetting>().BindConfiguration("Csp").ValidateDataAnnotations().ValidateOnStart();
+        builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<CspSetting>>().Value);
         builder.Services.AddOptions<AuthSetting>().BindConfiguration("Auth").ValidateDataAnnotations().ValidateOnStart();
         builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<AuthSetting>>().Value);
         builder.Services.AddOptions<TelemetrySetting>().BindConfiguration("Telemetry").ValidateDataAnnotations().ValidateOnStart();

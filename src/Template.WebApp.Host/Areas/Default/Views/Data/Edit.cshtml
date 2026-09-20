@@ -28,7 +28,7 @@
     </div>
 </form>
 
-<form if="User.IsAdministrator()" asp-action="Delete" asp-route-id='@ViewContext.RouteData.Values["id"]' method="post" onsubmit="return confirm('データを削除します。よろしいですか?')">
+<form if="User.IsAdministrator()" asp-action="Delete" asp-route-id='@ViewContext.RouteData.Values["id"]' method="post" data-confirm="データを削除します。よろしいですか?">
     <button type="submit" class="btn btn-danger">削除</button>
 </form>
 
