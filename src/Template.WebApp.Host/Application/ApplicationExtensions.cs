@@ -33,11 +33,11 @@ using Smart.AspNetCore.ApplicationModels;
 using Smart.Data;
 
 using Template.WebApp.Accessors;
+using Template.WebApp.Host.Application.Context;
+using Template.WebApp.Host.Application.ExceptionHandling;
+using Template.WebApp.Host.Application.HealthChecks;
+using Template.WebApp.Host.Application.Identity;
 using Template.WebApp.Host.Application.Telemetry;
-using Template.WebApp.Host.Infrastructure.ExceptionHandling;
-using Template.WebApp.Host.Infrastructure.Filters;
-using Template.WebApp.Host.Infrastructure.HealthChecks;
-using Template.WebApp.Host.Infrastructure.Identity;
 using Template.WebApp.Host.Infrastructure.Logging;
 using Template.WebApp.Host.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Security;
@@ -47,6 +47,8 @@ public static class ApplicationExtensions
 {
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
+    private const string SchemaPath = "Assets/Data/Schema.sql";
+    private const string SystemUserId = "system";
     private const string ApiPathPrefix = "/api";
 
     //--------------------------------------------------------------------------------
@@ -194,8 +196,16 @@ public static class ApplicationExtensions
             app.UseHsts();
         }
 
-        // Headers
-        app.UseMiddleware<SecurityHeadersMiddleware>();
+        // Headers. The nonce admits the inline scripts the views render,
+        // dotnet watch / Browser Link load their script from another localhost port and connect back to it
+        var development = app.Environment.IsDevelopment();
+        var scriptSources = development ? "'self' http://localhost:*" : "'self'";
+        var connectSources = development ? "'self' http://localhost:* ws://localhost:* wss://localhost:*" : "'self'";
+        app.UseMiddleware<SecurityHeadersMiddleware>(new SecurityHeadersOption
+        {
+            ReportOnly = app.Services.GetRequiredService<CspSetting>().ReportOnly,
+            ContentSecurityPolicy = $"default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src {scriptSources} 'nonce-{{nonce}}'; connect-src {connectSources}"
+        });
 
         return app;
     }
@@ -410,6 +420,7 @@ public static class ApplicationExtensions
             options.Threshold = 10_000;
         });
         builder.Services.AddSingleton<RequestMetricsActionFilter>();
+        builder.Services.AddSingleton<ServiceContextResourceFilter>();
 
         // MVC
         builder.Services
@@ -574,8 +585,8 @@ public static class ApplicationExtensions
         builder.Services.AddMemoryCache();
 
         // Storage
-        builder.Services.AddOptions<FileStorageOptions>().BindConfiguration("Storage").ValidateDataAnnotations().ValidateOnStart();
-        builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<FileStorageOptions>>().Value);
+        builder.Services.AddOptions<FileStorageOption>().BindConfiguration("Storage").ValidateDataAnnotations().ValidateOnStart();
+        builder.Services.AddSingleton(static p => p.GetRequiredService<IOptions<FileStorageOption>>().Value);
         builder.Services.AddSingleton<IStorage, FileStorage>();
 
         // Security
@@ -583,10 +594,13 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton<IPasswordProvider, DefaultPasswordProvider>();
 
         // Service
+        builder.Services.AddSingleton<ApplicationServiceContextProvider>();
+        builder.Services.AddSingleton<ServiceContextProvider>(static p => p.GetRequiredService<ApplicationServiceContextProvider>());
+
         builder.Services.AddCoreServices();
 
         // Report
-        builder.Services.AddSingleton<Infrastructure.Reports.InvoiceReportBuilder>();
+        builder.Services.AddSingleton<Reports.InvoiceReportBuilder>();
 
         // Setting
         builder.Services.AddOptions<ProfilerSetting>().BindConfiguration("Profiler").ValidateDataAnnotations().ValidateOnStart();
@@ -672,19 +686,24 @@ public static class ApplicationExtensions
     // Startup
     //--------------------------------------------------------------------------------
 
-    public static ValueTask InitializeApplicationAsync(this WebApplication app)
+    public static async ValueTask InitializeApplicationAsync(this WebApplication app)
     {
         // Prepare instrument
         app.Services.GetRequiredService<ApplicationInstrument>();
 
         // Prepare storage
-        Directory.CreateDirectory(app.Services.GetRequiredService<FileStorageOptions>().Root);
+        Directory.CreateDirectory(app.Services.GetRequiredService<FileStorageOption>().Root);
 
-        // Prepare database
-        app.Services.GetRequiredService<DataService>().CreateTable();
+        // Prepare database (schema from the SQL file)
+        await app.Services.GetRequiredService<DatabaseService>().InitializeAsync(SchemaPath, CancellationToken.None);
 
-        var setting = app.Services.GetRequiredService<AuthSetting>();
-        return app.Services.GetRequiredService<AccountService>().InitializeAsync(setting.InitialId, setting.InitialPassword, Roles.Administrator);
+        // Seed initial account (startup has no boundary, so the service context is started here)
+        var timeProvider = app.Services.GetRequiredService<TimeProvider>();
+        using (app.Services.GetRequiredService<ApplicationServiceContextProvider>().Begin(() => new ServiceContext(timeProvider.GetLocalNow(), SystemUserId)))
+        {
+            var option = app.Services.GetRequiredService<AuthSetting>().InitialAccount;
+            await app.Services.GetRequiredService<AccountService>().InitializeAsync(option, Roles.Administrator);
+        }
     }
 
     //--------------------------------------------------------------------------------

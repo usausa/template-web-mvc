@@ -2,7 +2,7 @@
 namespace Template.WebApp.Host.Areas.Default.Models;
 #pragma warning restore CA1716
 
-using Template.WebApp.Host.Infrastructure.Identity;
+using Template.WebApp.Host.Application.Identity;
 
 public sealed class AccountLoginForm
 {

@@ -3,9 +3,6 @@ namespace Template.WebApp.Accessors;
 [DataAccessor]
 public sealed partial class AccountPasskeyAccessor
 {
-    [Execute]
-    public partial void Create();
-
     [Query]
     public partial ValueTask<List<AccountPasskeyEntity>> QueryByAccountAsync(long accountId);
 

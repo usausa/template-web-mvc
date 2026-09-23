@@ -6,8 +6,8 @@ using System.Buffers.Text;
 
 using Microsoft.AspNetCore.Identity;
 
+using Template.WebApp.Host.Application.Identity;
 using Template.WebApp.Host.Areas.Default.Models;
-using Template.WebApp.Host.Infrastructure.Identity;
 
 // ログイン(パスワード / パスキー)・登録・パスキー管理。認証の流れはIdentity CoreのSignInManagerに任せる
 #pragma warning disable CA1054

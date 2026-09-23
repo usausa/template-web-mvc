@@ -12,3 +12,20 @@ CREATE TABLE IF NOT EXISTS Account (
     UNIQUE (Name),
     UNIQUE (NormalizedName)
 );
+
+CREATE TABLE IF NOT EXISTS AccountPasskey (
+    CredentialId  BLOB     NOT NULL,
+    AccountId     INTEGER  NOT NULL,
+    Data          TEXT     NOT NULL,
+    PRIMARY KEY (CredentialId),
+    FOREIGN KEY (AccountId) REFERENCES Account(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Data (
+    Id         INTEGER  NOT NULL,
+    Name       TEXT     NOT NULL,
+    Value      INTEGER  NOT NULL,
+    CreatedAt  TEXT     NOT NULL,
+    PRIMARY KEY (Id AUTOINCREMENT),
+    UNIQUE (Name)
+);

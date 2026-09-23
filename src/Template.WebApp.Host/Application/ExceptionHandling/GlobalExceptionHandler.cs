@@ -1,4 +1,4 @@
-namespace Template.WebApp.Host.Infrastructure.ExceptionHandling;
+namespace Template.WebApp.Host.Application.ExceptionHandling;
 
 using Microsoft.AspNetCore.Diagnostics;
 

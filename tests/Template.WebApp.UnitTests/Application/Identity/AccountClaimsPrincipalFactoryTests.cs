@@ -1,10 +1,10 @@
-namespace Template.WebApp.Infrastructure.Identity;
+namespace Template.WebApp.Application.Identity;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 using Template.WebApp.Host.Application;
-using Template.WebApp.Host.Infrastructure.Identity;
+using Template.WebApp.Host.Application.Identity;
 using Template.WebApp.Models.Entity;
 
 public sealed class AccountClaimsPrincipalFactoryTests

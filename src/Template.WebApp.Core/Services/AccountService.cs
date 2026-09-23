@@ -8,40 +8,34 @@ public sealed class AccountService
 {
     private readonly AccountAccessor accountAccessor;
 
-    private readonly AccountPasskeyAccessor accountPasskeyAccessor;
-
     private readonly IPasswordProvider passwordProvider;
 
-    private readonly TimeProvider timeProvider;
+    private readonly ServiceContextProvider contextProvider;
 
     public AccountService(
         AccountAccessor accountAccessor,
-        AccountPasskeyAccessor accountPasskeyAccessor,
         IPasswordProvider passwordProvider,
-        TimeProvider timeProvider)
+        ServiceContextProvider contextProvider)
     {
         this.accountAccessor = accountAccessor;
-        this.accountPasskeyAccessor = accountPasskeyAccessor;
         this.passwordProvider = passwordProvider;
-        this.timeProvider = timeProvider;
+        this.contextProvider = contextProvider;
     }
 
-    public async ValueTask InitializeAsync(string initialName, string initialPassword, string initialRole)
+    // Seed initial account
+    public async ValueTask InitializeAsync(InitialAccountOption option, string role)
     {
-        accountAccessor.Create();
-        accountPasskeyAccessor.Create();
-
-        // Seed initial account
         var count = await accountAccessor.CountAsync();
         if (count == 0)
         {
+            var context = contextProvider.Current;
             await accountAccessor.InsertAsync(
-                initialName,
-                initialName.ToUpperInvariant(),
-                passwordProvider.Generate(initialPassword),
-                initialRole,
+                option.Id,
+                option.Id.ToUpperInvariant(),
+                passwordProvider.Generate(option.Password),
+                role,
                 Guid.NewGuid().ToString("N"),
-                timeProvider.GetLocalNow().DateTime);
+                context.Now.DateTime);
         }
     }
 }

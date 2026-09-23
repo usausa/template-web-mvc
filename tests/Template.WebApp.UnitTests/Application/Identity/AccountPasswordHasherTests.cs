@@ -1,8 +1,8 @@
-namespace Template.WebApp.Infrastructure.Identity;
+namespace Template.WebApp.Application.Identity;
 
 using Microsoft.AspNetCore.Identity;
 
-using Template.WebApp.Host.Infrastructure.Identity;
+using Template.WebApp.Host.Application.Identity;
 using Template.WebApp.Infrastructure.Security;
 using Template.WebApp.Models.Entity;
 

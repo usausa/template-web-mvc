@@ -1,4 +1,4 @@
-namespace Template.WebApp.Host.Infrastructure.Identity;
+namespace Template.WebApp.Host.Application.Identity;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

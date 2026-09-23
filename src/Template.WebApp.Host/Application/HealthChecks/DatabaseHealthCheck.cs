@@ -1,4 +1,4 @@
-namespace Template.WebApp.Host.Infrastructure.HealthChecks;
+namespace Template.WebApp.Host.Application.HealthChecks;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 

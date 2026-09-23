@@ -42,6 +42,7 @@ global using Template.WebApp;
 global using Template.WebApp.Domain;
 global using Template.WebApp.Models;
 global using Template.WebApp.Models.Entity;
+global using Template.WebApp.Models.Parameters;
 global using Template.WebApp.Models.Paging;
 global using Template.WebApp.Services;
 global using Template.WebApp.Host.Application;

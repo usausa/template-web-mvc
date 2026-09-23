@@ -1,8 +1,6 @@
-namespace Template.WebApp.Host.Infrastructure.Filters;
+namespace Template.WebApp.Host.Application.Telemetry;
 
 using Microsoft.AspNetCore.Mvc.Filters;
-
-using Template.WebApp.Host.Application.Telemetry;
 
 public sealed class RequestMetricsActionFilter : IAsyncActionFilter
 {

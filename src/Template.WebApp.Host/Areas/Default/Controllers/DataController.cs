@@ -5,8 +5,9 @@ using CsvHelper;
 using Smart.AspNetCore.Mvc;
 using Smart.Mapper;
 
+using Template.WebApp.Host.Application;
 using Template.WebApp.Host.Areas.Default.Models;
-using Template.WebApp.Host.Infrastructure.Reports;
+using Template.WebApp.Host.Reports;
 
 public sealed partial class DataController : BaseDefaultController
 {
@@ -31,7 +32,7 @@ public sealed partial class DataController : BaseDefaultController
         {
             c.Page = Math.Max(c.Page, 1);
 
-            var paged = await DataService.QueryPagedAsync(c.Name, c.Sort, c.Desc, c.SetSize(PageSize), cancellationToken);
+            var paged = await DataService.QueryPagedAsync(c.Name, RequestHelper.Parse(c.Sort, DataSort.Id), c.Desc, c.SetSize(PageSize), cancellationToken);
             if (paged.IsOver)
             {
                 return RedirectToAction(nameof(List), new { c.Go, c.Name, c.Sort, c.Desc, Page = paged.TotalPage });
@@ -75,8 +76,8 @@ public sealed partial class DataController : BaseDefaultController
     {
         if (ModelState.IsValid)
         {
-            var id = await DataService.InsertAsync(form.Name, form.Value!.Value);
-            if (id is not null)
+            var entity = new DataEntity { Name = form.Name, Value = form.Value!.Value };
+            if (await DataService.InsertAsync(entity) == DataWriteStatus.Success)
             {
                 TempData.SetMessage("データを作成しました");
 
@@ -144,7 +145,7 @@ public sealed partial class DataController : BaseDefaultController
             var cancellationToken = HttpContext.RequestAborted;
             await using var writer = new StreamWriter(stream, new UTF8Encoding(true));
             await using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
-            await csv.WriteRecordsAsync(DataService.QueryExportEnumerable(c.Name, c.Sort, c.Desc, cancellationToken), cancellationToken);
+            await csv.WriteRecordsAsync(DataService.QueryExportEnumerable(c.Name, RequestHelper.Parse(c.Sort, DataSort.Id), c.Desc, cancellationToken), cancellationToken);
         });
     }
 
@@ -176,7 +177,7 @@ public sealed partial class DataController : BaseDefaultController
     [ValidateAntiForgeryToken]
     public async ValueTask<IActionResult> Delete(long id)
     {
-        if (!await DataService.DeleteAsync(id))
+        if (await DataService.DeleteAsync(id) != DataWriteStatus.Success)
         {
             return NotFound();
         }

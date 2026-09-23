@@ -1,6 +1,8 @@
-namespace Template.WebApp.Host.Infrastructure.Reports;
+namespace Template.WebApp.Host.Reports;
 
 using OysterReport;
+
+using Template.WebApp.Host.Infrastructure.Reports;
 
 public sealed class InvoiceReportBuilder
 {

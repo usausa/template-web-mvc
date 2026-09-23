@@ -36,3 +36,4 @@ global using Smart.Text;
 global using Template.WebApp.Domain;
 global using Template.WebApp.Models;
 global using Template.WebApp.Models.Entity;
+global using Template.WebApp.Models.Parameters;

@@ -9,8 +9,5 @@ public sealed class AuthSetting
     public int ExpireMinutes { get; set; }
 
     [Required]
-    public string InitialId { get; set; } = default!;
-
-    [Required]
-    public string InitialPassword { get; set; } = default!;
+    public InitialAccountOption InitialAccount { get; set; } = default!;
 }

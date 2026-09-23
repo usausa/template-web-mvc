@@ -1,27 +1,22 @@
 namespace Template.WebApp.Host.Infrastructure.Security;
 
-using Template.WebApp.Host.Settings;
-
-// Security headers for every response. The CSP is enforced, or only reported (Csp:ReportOnly, Development)
 public sealed class SecurityHeadersMiddleware
 {
+    private const string NoncePlaceholder = "{nonce}";
+
     private readonly RequestDelegate next;
 
-    private readonly bool reportOnly;
+    private readonly SecurityHeadersOption option;
 
-    // dotnet watch / Browser Link load their script from another localhost port and connect back to it
-    private readonly string scriptSources;
-
-    private readonly string connectSources;
+    private readonly bool useNonce;
 
     private readonly Func<object, Task> onStarting;
 
-    public SecurityHeadersMiddleware(RequestDelegate next, IHostEnvironment environment, CspSetting setting)
+    public SecurityHeadersMiddleware(RequestDelegate next, SecurityHeadersOption option)
     {
         this.next = next;
-        reportOnly = setting.ReportOnly;
-        scriptSources = environment.IsDevelopment() ? "'self' http://localhost:*" : "'self'";
-        connectSources = environment.IsDevelopment() ? "'self' http://localhost:* ws://localhost:* wss://localhost:*" : "'self'";
+        this.option = option;
+        useNonce = option.ContentSecurityPolicy?.Contains(NoncePlaceholder, StringComparison.Ordinal) ?? false;
         onStarting = OnStarting;
     }
 
@@ -39,16 +34,19 @@ public sealed class SecurityHeadersMiddleware
         headers.XFrameOptions = "DENY";
         headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
 
-        // The nonce is for inline scripts in views (<script nonce="@Nonce.Value">). Bootstrap needs inline styles.
-        var nonce = context.RequestServices.GetRequiredService<CspNonce>().Value;
-        var policy = $"default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src {scriptSources} 'nonce-{nonce}'; connect-src {connectSources}";
-        if (reportOnly)
+        if (option.ContentSecurityPolicy is not null)
         {
-            headers.ContentSecurityPolicyReportOnly = policy;
-        }
-        else
-        {
-            headers.ContentSecurityPolicy = policy;
+            var policy = useNonce
+                ? option.ContentSecurityPolicy.Replace(NoncePlaceholder, context.RequestServices.GetRequiredService<CspNonce>().Value, StringComparison.Ordinal)
+                : option.ContentSecurityPolicy;
+            if (option.ReportOnly)
+            {
+                headers.ContentSecurityPolicyReportOnly = policy;
+            }
+            else
+            {
+                headers.ContentSecurityPolicy = policy;
+            }
         }
 
         return Task.CompletedTask;
