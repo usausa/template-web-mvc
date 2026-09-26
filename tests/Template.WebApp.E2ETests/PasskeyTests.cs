@@ -3,10 +3,9 @@ namespace Template.WebApp;
 using System.Text.RegularExpressions;
 
 using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit.v3;
 
 // CDPのWebAuthn仮想認証器を使ってパスキーの登録〜ログインを検証する
-public sealed class PasskeyTests : PageTest
+public sealed class PasskeyTests : E2ETestBase
 {
     private async Task EnableVirtualAuthenticatorAsync()
     {
@@ -29,7 +28,7 @@ public sealed class PasskeyTests : PageTest
     [Fact]
     public async Task RegisterPasskeyAndLogin()
     {
-        // Arrange
+        // Given
         await using var factory = new E2EApplicationFactory();
         factory.UseKestrel(0);
         factory.StartServer();
@@ -59,7 +58,7 @@ public sealed class PasskeyTests : PageTest
         await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ログアウト" }).ClickAsync();
         await Expect(Page).ToHaveURLAsync(new Regex(".*/account/login.*", RegexOptions.IgnoreCase));
 
-        // Assert (仮想認証器では条件付きUI(自動フィル)によりパスキーログインが自動実行される)
+        // Then (仮想認証器では条件付きUI(自動フィル)によりパスキーログインが自動実行される)
         await Expect(Page).ToHaveTitleAsync(new Regex("ダッシュボード.*"), new PageAssertionsToHaveTitleOptions { Timeout = 30_000 });
     }
 }
