@@ -3,6 +3,7 @@ namespace Template.WebApp.Host.Application;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Text.Unicode;
@@ -430,15 +431,23 @@ public static class ApplicationExtensions
                 options.Conventions.Add(new LowercaseControllerModelConvention());
                 options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(static (_, y) => Messages.MakeInvalid(y));
             })
-            .AddJsonOptions(static options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy = NamingPolicy.JsonPropertyNaming;
-                options.JsonSerializerOptions.DictionaryKeyPolicy = NamingPolicy.JsonDictionaryKeyNaming;
-                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-            });
+            .AddJsonOptions(static options => ConfigureJsonSerializerOptions(options.JsonSerializerOptions));
+
+        // Minimal API / OpenAPI
+        builder.Services.ConfigureHttpJsonOptions(static options => ConfigureJsonSerializerOptions(options.SerializerOptions));
 
         return builder;
+    }
+
+    private static void ConfigureJsonSerializerOptions(JsonSerializerOptions options)
+    {
+        options.PropertyNamingPolicy = NamingPolicy.JsonPropertyNaming;
+        options.DictionaryKeyPolicy = NamingPolicy.JsonDictionaryKeyNaming;
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+        options.NumberHandling = JsonNumberHandling.Strict;
+        options.AllowDuplicateProperties = false;
+        options.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
     }
 
     //--------------------------------------------------------------------------------

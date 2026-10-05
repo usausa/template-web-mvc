@@ -1,5 +1,7 @@
 namespace Template.WebApp;
 
+using System.Text;
+
 using AngleSharp.Html.Parser;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -73,5 +75,24 @@ public sealed class AuthDisabledTests : IClassFixture<AuthDisabledApplicationFac
 
         // Assert(ログイン成功はトップへのリダイレクト)
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("{")]
+    [InlineData("""{"name":"JsonItem","value":"1"}""")]
+    [InlineData("""{"name":"JsonItem","name":"JsonItem","value":1}""")]
+    [InlineData("""{"name":"JsonItem","value":1,"ownerId":"other"}""")]
+    public async Task CreateWithInvalidJsonReturnsBadRequest(string body)
+    {
+        // Arrange
+        var client = factory.CreateClient();
+        using var content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        // Act
+        var response = await client.PostAsync(new Uri("/api/data/create", UriKind.Relative), content, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
 }

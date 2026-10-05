@@ -1,5 +1,7 @@
 namespace Template.WebApp;
 
+using System.Text.Json.Nodes;
+
 public sealed class HostTests : IClassFixture<TestApplicationFactory>
 {
     private readonly TestApplicationFactory factory;
@@ -48,5 +50,22 @@ public sealed class HostTests : IClassFixture<TestApplicationFactory>
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task OpenApiDocumentDescribesResponses()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var document = JsonNode.Parse(await client.GetStringAsync(new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        var operation = document["paths"]!["/api/data/get/{id}"]!["get"]!;
+
+        // Assert
+        Assert.Equal("DataGet", (string?)operation["operationId"]);
+        Assert.Equal("#/components/schemas/DataGetResponse", (string?)operation["responses"]!["200"]!["content"]!["application/json"]!["schema"]!["$ref"]);
+        Assert.NotNull(operation["responses"]!["404"]!["content"]!["application/problem+json"]);
+        Assert.Equal("integer", (string?)document["components"]!["schemas"]!["DataGetResponse"]!["properties"]!["value"]!["type"]);
     }
 }

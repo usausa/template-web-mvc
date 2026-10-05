@@ -14,8 +14,15 @@ public static class PasskeyEndpoints
     {
         var group = app.MapGroup("/account/passkey");
 
-        group.MapPost("/creation-options", HandleCreationOptionsAsync).RequireAuthorization();
-        group.MapPost("/request-options", HandleRequestOptionsAsync).AllowAnonymous();
+        group.MapPost("/creation-options", HandleCreationOptionsAsync)
+            .RequireAuthorization()
+            .WithName("PasskeyCreationOptions")
+            .Produces(StatusCodes.Status200OK, contentType: "application/json")
+            .Produces(StatusCodes.Status404NotFound);
+        group.MapPost("/request-options", HandleRequestOptionsAsync)
+            .AllowAnonymous()
+            .WithName("PasskeyRequestOptions")
+            .Produces(StatusCodes.Status200OK, contentType: "application/json");
     }
 
     //--------------------------------------------------------------------------------

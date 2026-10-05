@@ -1,5 +1,7 @@
 namespace Template.WebApp.Host.Areas.Api.Controllers;
 
+using Microsoft.AspNetCore.Routing;
+
 using Smart.Mapper;
 
 using Template.WebApp.Host.Application;
@@ -30,7 +32,7 @@ public sealed class DataListResponse
     public IReadOnlyList<DataListEntry> Items { get; set; } = default!;
 }
 
-public sealed class DataResponse
+public sealed class DataGetResponse
 {
     public long Id { get; set; }
 
@@ -77,7 +79,7 @@ public static partial class DataMapper
     public static partial DataListEntry ToListEntry(this DataEntity entity);
 
     [Mapper]
-    public static partial DataResponse ToResponse(this DataEntity entity);
+    public static partial DataGetResponse ToGetResponse(this DataEntity entity);
 }
 
 //--------------------------------------------------------------------------------
@@ -99,7 +101,9 @@ public sealed class DataController : BaseApiController
     //--------------------------------------------------------------------------------
 
     [HttpGet]
+    [EndpointName("DataList")]
     [ProducesResponseType<DataListResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     public async ValueTask<IActionResult> List(
         [FromQuery] string? name,
         [FromQuery] string? sort,
@@ -120,12 +124,13 @@ public sealed class DataController : BaseApiController
 
     // ReSharper disable once RouteTemplates.RouteTokenNotResolved
     [HttpGet("~/[area]/[controller]/[action]/{id:long}")]
-    [ProducesResponseType<DataResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EndpointName("DataGet")]
+    [ProducesResponseType<DataGetResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async ValueTask<IActionResult> Get(long id)
     {
         var entity = await DataService.QueryAsync(id);
-        return entity is not null ? Ok(entity.ToResponse()) : NotFound();
+        return entity is not null ? Ok(entity.ToGetResponse()) : NotFound();
     }
 
     //--------------------------------------------------------------------------------
@@ -133,8 +138,10 @@ public sealed class DataController : BaseApiController
     //--------------------------------------------------------------------------------
 
     [HttpPost]
+    [EndpointName("DataCreate")]
     [ProducesResponseType<DataCreateResponse>(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async ValueTask<IActionResult> Create([FromBody] DataCreateRequest request)
     {
         var entity = new DataEntity { Name = request.Name, Value = request.Value };
@@ -148,9 +155,11 @@ public sealed class DataController : BaseApiController
 
     // ReSharper disable once RouteTemplates.RouteTokenNotResolved
     [HttpPost("~/[area]/[controller]/[action]/{id:long}")]
+    [EndpointName("DataUpdate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async ValueTask<IActionResult> Update(long id, [FromBody] DataUpdateRequest request)
     {
         var result = await DataService.UpdateAsync(id, request.Name, request.Value);
@@ -165,8 +174,10 @@ public sealed class DataController : BaseApiController
     // ReSharper disable once RouteTemplates.RouteTokenNotResolved
     [HttpPost("~/[area]/[controller]/[action]/{id:long}")]
     [Authorize(Policy = Policies.Administrator)]
+    [EndpointName("DataDelete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async ValueTask<IActionResult> Delete(long id)
     {
         return await DataService.DeleteAsync(id) == DataWriteStatus.Success ? NoContent() : NotFound();
