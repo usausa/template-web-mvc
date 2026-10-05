@@ -7,7 +7,7 @@ using Template.WebApp.Host.Application.Telemetry;
 [Route("[area]/[controller]/[action]")]
 [ApiController]
 [Authorize]
-[ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json")]
 [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/problem+json")]
 [ServiceFilter<RequestMetricsActionFilter>]
 [ServiceFilter<ServiceContextResourceFilter>]

@@ -50,6 +50,7 @@ public sealed class HostTests : IClassFixture<TestApplicationFactory>
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
 
     [Fact]
@@ -65,6 +66,7 @@ public sealed class HostTests : IClassFixture<TestApplicationFactory>
         // Assert
         Assert.Equal("DataGet", (string?)operation["operationId"]);
         Assert.Equal("#/components/schemas/DataGetResponse", (string?)operation["responses"]!["200"]!["content"]!["application/json"]!["schema"]!["$ref"]);
+        Assert.NotNull(operation["responses"]!["401"]!["content"]!["application/problem+json"]);
         Assert.NotNull(operation["responses"]!["404"]!["content"]!["application/problem+json"]);
         Assert.Equal("integer", (string?)document["components"]!["schemas"]!["DataGetResponse"]!["properties"]!["value"]!["type"]);
     }

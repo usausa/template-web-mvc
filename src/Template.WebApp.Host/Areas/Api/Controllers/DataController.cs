@@ -176,7 +176,7 @@ public sealed class DataController : BaseApiController
     [Authorize(Policy = Policies.Administrator)]
     [EndpointName("DataDelete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async ValueTask<IActionResult> Delete(long id)
     {
