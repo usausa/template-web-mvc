@@ -1,66 +1,68 @@
 # template-web-mvc
 
-ASP.NET Core MVC のテンプレート。データアクセスは Smart.Data.Accessor(SQLite)、認証は ASP.NET Core Identity Core を **EF Core なし**で組み込んでいる。
+English | [日本語](README.ja.md)
 
-## 認証
+ASP.NET Core MVC template. Data access uses Smart.Data.Accessor (SQLite), and authentication integrates ASP.NET Core Identity Core **without EF Core**.
 
-- 既定(`Auth:Enabled=false`)では認証を要求しない。`[Authorize]` と `Administrator` ポリシーはすべて素通しになり、ログインなしで全機能を使える
-- `Auth:Enabled=true` にすると Cookie 認証が有効になる。ログイン(パスワード / パスキー)・新規登録・パスキー管理・ロックアウトが動く
-- 認証の流れ(Cookie / パスキー / ロックアウト)は Identity の `SignInManager` / `UserManager` に任せ、利用者の保存だけを `AccountStore`(Smart.Data.Accessor)で行う。EF Core は使わない
+## Authentication
 
-| 画面 | パス | 備考 |
+- By default (`Auth:Enabled=false`), authentication is not required. `[Authorize]` and the `Administrator` policy all pass through, and all features can be used without logging in
+- Setting `Auth:Enabled=true` enables cookie authentication. Login (password / passkey), registration, passkey management, and lockout work
+- The authentication flow (cookie / passkey / lockout) is left to `SignInManager` / `UserManager` of Identity, and only the storage of users is done with `AccountStore` (Smart.Data.Accessor). EF Core is not used
+
+| Screen | Path | Notes |
 |---|---|---|
-| ログイン | `/account/login` | パスワード、または「パスキーでログイン」(条件付き UI の自動フィルにも対応) |
-| 新規登録 | `/account/register` | 作成されたアカウントのロールは `User` |
-| パスキー管理 | `/account/passkeys` | 登録(上限 5 件)・名前変更・削除。ログイン後のメニューから開く |
+| Login | `/account/login` | Password, or login with a passkey (also supports autofill with the conditional UI) |
+| Registration | `/account/register` | The role of a created account is `User` |
+| Passkey management | `/account/passkeys` | Registration (up to 5), renaming, deletion. Opened from the menu after login |
 
-### 構成
+### Structure
 
-| 要素 | 場所 | 役割 |
+| Element | Location | Role |
 |---|---|---|
-| `AccountEntity` / `AccountPasskeyEntity` | `Template.WebApp.Core/Models/Entity` | 利用者とパスキー。`Database.sql` のテーブルに対応 |
-| `AccountAccessor` / `AccountPasskeyAccessor` | `Template.WebApp.Core/Accessors` | Smart.Data.Accessor による永続化 |
-| `AccountStore` | `Template.WebApp.Host/Infrastructure/Identity` | `IUserStore` / `IUserPasswordStore` / `IUserSecurityStampStore` / `IUserLockoutStore` / `IUserPasskeyStore` の実装 |
-| `AccountPasswordHasher` | 同上 | Identity のハッシュ処理を既存の `IPasswordProvider`(PBKDF2)へ委譲 |
-| `AccountClaimsPrincipalFactory` | 同上 | Cookie に載せるクレームの組み立て。ロールや業務クレームをカスタムする入口 |
-| `PasskeyEndpoints` | `Template.WebApp.Host/Application` | WebAuthn のオプション生成 API(`/account/passkey/creation-options`、`/account/passkey/request-options`) |
-| `AccountController` | `Areas/Default/Controllers` | ログイン・登録・パスキー管理の画面 |
+| `AccountEntity` / `AccountPasskeyEntity` | `Template.WebApp.Core/Models/Entity` | Users and passkeys. Correspond to the tables in `Database.sql` |
+| `AccountAccessor` / `AccountPasskeyAccessor` | `Template.WebApp.Core/Accessors` | Persistence with Smart.Data.Accessor |
+| `AccountStore` | `Template.WebApp.Host/Infrastructure/Identity` | Implementation of `IUserStore` / `IUserPasswordStore` / `IUserSecurityStampStore` / `IUserLockoutStore` / `IUserPasskeyStore` |
+| `AccountPasswordHasher` | Same as above | Delegates the hashing of Identity to the existing `IPasswordProvider` (PBKDF2) |
+| `AccountClaimsPrincipalFactory` | Same as above | Builds the claims put in the cookie. The entry point for customizing roles and business claims |
+| `PasskeyEndpoints` | `Template.WebApp.Host/Application` | APIs that create the WebAuthn options (`/account/passkey/creation-options`, `/account/passkey/request-options`) |
+| `AccountController` | `Areas/Default/Controllers` | Screens for login, registration, and passkey management |
 
-### ロールとクレイム
+### Roles and claims
 
-- ロールは `Account.Role` 列を正とする(Identity の `RoleManager` は使わない)。`Roles` / `Policies` に定数があり、`Administrator` ポリシーは削除操作に使っている
-- 業務固有のクレーム(部署や権限フラグなど)は `AccountClaimsPrincipalFactory.CreateAsync` で `Account` の列や別テーブルから読んで足す
-- 初期ユーザーは `Auth:InitialId` / `Auth:InitialPassword`(admin / admin、`Administrator`)。起動時に `AccountService.InitializeAsync` が作成する
+- The `Account.Role` column is the source of truth for roles (`RoleManager` of Identity is not used). The constants are in `Roles` / `Policies`, and the `Administrator` policy is used for delete operations
+- Business-specific claims (such as departments and permission flags) are added in `AccountClaimsPrincipalFactory.CreateAsync` by reading columns of `Account` or other tables
+- The initial user is `Auth:InitialId` / `Auth:InitialPassword` (admin / admin, `Administrator`). `AccountService.InitializeAsync` creates it at startup
 
-## メモ
+## Notes
 
-- パスワードポリシーは開発用初期パスワード(admin)を許容する緩和設定になっている。運用時は `ConfigureAuthentication` の `options.Password` を強化すること
-- ロックアウトの回数と期間は `IdentityOptions.Lockout`(既定 5 回 / 5 分)で調整する
-- パスキーは localhost 以外では HTTPS が必要(WebAuthn の RP ID に IP アドレスは使用不可)
-- テストは認証オン(`TestApplicationFactory` / `E2EApplicationFactory`)を前提にし、`AuthDisabledTests` で認証オフの状態を別途検証している。E2E の `PasskeyTests` は Playwright の CDP WebAuthn 仮想認証器でパスキーの登録〜ログインを検証する
-- MFA(TOTP + リカバリーコード)は未実装
+- The password policy is relaxed to allow the initial password for development (admin). In operation, strengthen `options.Password` in `ConfigureAuthentication`
+- Adjust the lockout count and duration with `IdentityOptions.Lockout` (5 times / 5 minutes by default)
+- Passkeys require HTTPS except on localhost (an IP address cannot be used as the RP ID of WebAuthn)
+- The tests assume that authentication is on (`TestApplicationFactory` / `E2EApplicationFactory`), and `AuthDisabledTests` separately verifies the state with authentication off. `PasskeyTests` of the E2E tests verifies passkey registration through login with the CDP WebAuthn virtual authenticator of Playwright
+- MFA (TOTP + recovery codes) is not implemented
 
-## E2E テスト
+## E2E tests
 
-E2E(`tests/Template.WebApp.E2ETests`)は Playwright で動かす。日常の実行には含めず、必要なときとリリース前に流す。コマンドはリポジトリ直下の PowerShell で実行する。
+The E2E tests (`tests/Template.WebApp.E2ETests`) run with Playwright. They are not part of the daily runs, and are run when needed and before releases. Run the commands in PowerShell at the repository root.
 
 ```powershell
-# ブラウザの入手(初回。ビルドで出力されるスクリプトを使う)
+# Get the browsers (first time. Uses the script output by the build)
 dotnet build tests/Template.WebApp.E2ETests
 pwsh tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright.ps1 install
 
-# 実行(既定は Chromium・画面なし)
+# Run (Chromium and headless by default)
 dotnet run --project tests/Template.WebApp.E2ETests
 
-# 画面を出して実行
+# Run with the browser shown
 $env:HEADED = "1"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:HEADED
 
-# ブラウザを切り替える(chromium / firefox / webkit)
+# Switch the browser (chromium / firefox / webkit)
 $env:BROWSER = "firefox"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:BROWSER
 
-# Playwright Inspector で 1 手ずつ実行
+# Run step by step with Playwright Inspector
 $env:PWDEBUG = "1"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:PWDEBUG
 ```
 
-- 失敗したテストだけ、操作ごとの画面・DOM・通信・コンソールを記録したトレースを `tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright-traces/<テストの表示名>.zip` に残す。`pwsh tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright.ps1 show-trace <zip>` か https://trace.playwright.dev で開く
-- パスキーのテスト(`PasskeyTests`)は CDP の仮想認証器を使うので、Chromium でしか通らない(firefox / webkit では失敗する)
+- Only for failed tests, a trace that records the screen, DOM, network, and console of each action is saved to `tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright-traces/<test display name>.zip`. Open it with `pwsh tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright.ps1 show-trace <zip>` or https://trace.playwright.dev
+- The passkey tests (`PasskeyTests`) use the CDP virtual authenticator, so they pass only on Chromium (they fail on firefox / webkit)
