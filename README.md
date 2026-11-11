@@ -1,7 +1,5 @@
 # Template project for ASP.NET Core MVC
 
-English | [日本語](README.ja.md)
-
 [Template](https://usausa.github.io/template/) project for ASP.NET Core MVC.
 
 # ✅ Implement
