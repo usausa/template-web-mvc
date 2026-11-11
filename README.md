@@ -2,7 +2,7 @@
 
 English | [日本語](README.ja.md)
 
-ASP.NET Core MVC template. Data access uses Smart.Data.Accessor (SQLite), and authentication integrates ASP.NET Core Identity Core **without EF Core**.
+[Template](https://usausa.github.io/template/) project for ASP.NET Core MVC.
 
 # ✅ Implement
 

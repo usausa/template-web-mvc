@@ -2,7 +2,7 @@
 
 [English](README.md) | 日本語
 
-ASP.NET Core MVC のテンプレート。データアクセスは Smart.Data.Accessor(SQLite)、認証は ASP.NET Core Identity Core を **EF Core なし**で組み込んでいる。
+[Template](https://usausa.github.io/template/) project for ASP.NET Core MVC.
 
 # ✅ 実装
 
