@@ -1,68 +1,46 @@
-# template-web-mvc
+# Template project for ASP.NET Core MVC
 
 [English](README.md) | 日本語
 
 ASP.NET Core MVC のテンプレート。データアクセスは Smart.Data.Accessor(SQLite)、認証は ASP.NET Core Identity Core を **EF Core なし**で組み込んでいる。
 
-## 認証
+# ✅ 実装
 
-- 既定(`Auth:Enabled=false`)では認証を要求しない。`[Authorize]` と `Administrator` ポリシーはすべて素通しになり、ログインなしで全機能を使える
-- `Auth:Enabled=true` にすると Cookie 認証が有効になる。ログイン(パスワード / パスキー)・新規登録・パスキー管理・ロックアウトが動く
-- 認証の流れ(Cookie / パスキー / ロックアウト)は Identity の `SignInManager` / `UserManager` に任せ、利用者の保存だけを `AccountStore`(Smart.Data.Accessor)で行う。EF Core は使わない
+| 分類 | 機能 |
+| --- | --- |
+| UI | MVC(Areas・Razor ビュー) / Bootstrap 5 / クライアント検証(jQuery Validation) / 並べ替え一覧とページャー / フラッシュメッセージ / 未保存変更の警告 / エラー画面 |
+| API | Web API コントローラー(`/api`) / OpenAPI(Swagger UI・ReDoc) / 検証 / ProblemDetails |
+| 認証 | EF Core なしの Identity(Smart.Data.Accessor) / Cookie / パスキー(WebAuthn) / 新規登録 / ロックアウト / ロールポリシー / 認証のオン・オフ切り替え |
+| データ | SQLite(Smart.Data.Accessor) / ページング・並べ替え・検索 / CSV 出力(CsvHelper) / PDF 帳票(OysterReport) / ファイル保管 |
+| HTTP | 圧縮(Brotli・Gzip) / セキュリティヘッダー(CSP nonce) / 転送ヘッダー / CSRF 対策(Antiforgery) |
+| 監視 | Serilog / HTTP ログ / W3C ログ / SQL プロファイラー(MiniDataProfiler) / OpenTelemetry(OTLP・Prometheus) / ヘルスチェック |
+| 運用 | 機能フラグ / Windows サービス / systemd / Aspire AppHost |
+| テスト | 単体(xUnit v3) / 結合(WebApplicationFactory・AngleSharp) / E2E(Playwright) |
 
-| 画面 | パス | 備考 |
-|---|---|---|
-| ログイン | `/account/login` | パスワード、または「パスキーでログイン」(条件付き UI の自動フィルにも対応) |
-| 新規登録 | `/account/register` | 作成されたアカウントのロールは `User` |
-| パスキー管理 | `/account/passkeys` | 登録(上限 5 件)・名前変更・削除。ログイン後のメニューから開く |
+# 📚 ドキュメント
 
-### 構成
+| ドキュメント | 内容 |
+| --- | --- |
+| [authentication.md](docs/authentication.md) | 認証(流れ・画面・構成・ロールとクレイム・メモ) |
+| [e2e.md](docs/e2e.md) | E2E テスト(Playwright) |
 
-| 要素 | 場所 | 役割 |
-|---|---|---|
-| `AccountEntity` / `AccountPasskeyEntity` | `Template.WebApp.Core/Models/Entity` | 利用者とパスキー。`Database.sql` のテーブルに対応 |
-| `AccountAccessor` / `AccountPasskeyAccessor` | `Template.WebApp.Core/Accessors` | Smart.Data.Accessor による永続化 |
-| `AccountStore` | `Template.WebApp.Host/Infrastructure/Identity` | `IUserStore` / `IUserPasswordStore` / `IUserSecurityStampStore` / `IUserLockoutStore` / `IUserPasskeyStore` の実装 |
-| `AccountPasswordHasher` | 同上 | Identity のハッシュ処理を既存の `IPasswordProvider`(PBKDF2)へ委譲 |
-| `AccountClaimsPrincipalFactory` | 同上 | Cookie に載せるクレームの組み立て。ロールや業務クレームをカスタムする入口 |
-| `PasskeyEndpoints` | `Template.WebApp.Host/Application` | WebAuthn のオプション生成 API(`/account/passkey/creation-options`、`/account/passkey/request-options`) |
-| `AccountController` | `Areas/Default/Controllers` | ログイン・登録・パスキー管理の画面 |
+# 🔗 関連プロジェクト
 
-### ロールとクレイム
+| プロジェクト | 説明 |
+| --- | --- |
+| [template-web-api](https://github.com/usausa/template-web-api) | Web API のテンプレート(Minimal API) |
+| [template-web-fullstack](https://github.com/usausa/template-web-fullstack) | フルスタック構成のテンプレート |
+| [template-blazor-server](https://github.com/usausa/template-blazor-server) | Blazor Server アプリのテンプレート |
+| [template-blazor-wasm](https://github.com/usausa/template-blazor-wasm) | Blazor WebAssembly + ASP.NET Core API のテンプレート |
+| [template-grpc-server](https://github.com/usausa/template-grpc-server) | gRPC サーバーのテンプレート |
 
-- ロールは `Account.Role` 列を正とする(Identity の `RoleManager` は使わない)。`Roles` / `Policies` に定数があり、`Administrator` ポリシーは削除操作に使っている
-- 業務固有のクレーム(部署や権限フラグなど)は `AccountClaimsPrincipalFactory.CreateAsync` で `Account` の列や別テーブルから読んで足す
-- 初期ユーザーは `Auth:InitialId` / `Auth:InitialPassword`(admin / admin、`Administrator`)。起動時に `AccountService.InitializeAsync` が作成する
+# 📦 自作ライブラリ
 
-## メモ
-
-- パスワードポリシーは開発用初期パスワード(admin)を許容する緩和設定になっている。運用時は `ConfigureAuthentication` の `options.Password` を強化すること
-- ロックアウトの回数と期間は `IdentityOptions.Lockout`(既定 5 回 / 5 分)で調整する
-- パスキーは localhost 以外では HTTPS が必要(WebAuthn の RP ID に IP アドレスは使用不可)
-- テストは認証オン(`TestApplicationFactory` / `E2EApplicationFactory`)を前提にし、`AuthDisabledTests` で認証オフの状態を別途検証している。E2E の `PasskeyTests` は Playwright の CDP WebAuthn 仮想認証器でパスキーの登録〜ログインを検証する
-- MFA(TOTP + リカバリーコード)は未実装
-
-## E2E テスト
-
-E2E(`tests/Template.WebApp.E2ETests`)は Playwright で動かす。日常の実行には含めず、必要なときとリリース前に流す。コマンドはリポジトリ直下の PowerShell で実行する。
-
-```powershell
-# ブラウザの入手(初回。ビルドで出力されるスクリプトを使う)
-dotnet build tests/Template.WebApp.E2ETests
-pwsh tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright.ps1 install
-
-# 実行(既定は Chromium・画面なし)
-dotnet run --project tests/Template.WebApp.E2ETests
-
-# 画面を出して実行
-$env:HEADED = "1"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:HEADED
-
-# ブラウザを切り替える(chromium / firefox / webkit)
-$env:BROWSER = "firefox"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:BROWSER
-
-# Playwright Inspector で 1 手ずつ実行
-$env:PWDEBUG = "1"; dotnet run --project tests/Template.WebApp.E2ETests; Remove-Item Env:PWDEBUG
-```
-
-- 失敗したテストだけ、操作ごとの画面・DOM・通信・コンソールを記録したトレースを `tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright-traces/<テストの表示名>.zip` に残す。`pwsh tests/Template.WebApp.E2ETests/bin/Debug/net10.0/playwright.ps1 show-trace <zip>` か https://trace.playwright.dev で開く
-- パスキーのテスト(`PasskeyTests`)は CDP の仮想認証器を使うので、Chromium でしか通らない(firefox / webkit では失敗する)
+| ライブラリ | 説明 |
+| --- | --- |
+| [Usa.Smart.AspNetCore](https://github.com/usausa/Smart-Net-AspNetCore) | ASP.NET Core ヘルパー |
+| [Usa.Smart.Data.Accessor](https://github.com/usausa/Smart-Net-Data-Accessor) | データアクセス |
+| [Usa.Smart.Mapper](https://github.com/usausa/Smart-Net-Mapper) | オブジェクトマッパー |
+| [OysterReport](https://github.com/usausa/oyster-report) | PDF 作成 |
+| [MiniDataProfiler](https://github.com/usausa/mini-data-profiler) | SQL プロファイラー |
+| [BunnyTail.ServiceRegistration](https://github.com/usausa/bunnytail-service-registration) | サービス登録 |
