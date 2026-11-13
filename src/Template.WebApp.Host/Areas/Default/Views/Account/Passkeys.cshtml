@@ -21,7 +21,7 @@
                         var credentialId = Base64Url.EncodeToString(passkey.CredentialId);
                         <tr>
                             <td class="align-middle">@(passkey.Name ?? "名前未設定のパスキー")</td>
-                            <td class="align-middle text-muted">@passkey.CreatedAt.LocalDateTime.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td class="align-middle text-muted">@passkey.CreatedAt.LocalDateTime.ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture)</td>
                             <td class="text-end">
                                 <a class="btn btn-outline-primary" asp-action="RenamePasskey" asp-route-id="@credentialId">名前変更</a>
                                 <form class="d-inline" method="post" asp-action="DeletePasskey" asp-antiforgery="true">
