@@ -143,8 +143,7 @@ public sealed partial class DataController : BaseDefaultController
         return new PushStreamResult("text/csv", "data.csv", async stream =>
         {
             var cancellationToken = HttpContext.RequestAborted;
-            await using var writer = new StreamWriter(stream, new UTF8Encoding(true));
-            await using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            await using var csv = CsvWriter.Create(stream);
             await csv.WriteRecordsAsync(DataService.QueryExportEnumerable(c.Name, RequestHelper.Parse(c.Sort, DataSort.Id), c.Desc, cancellationToken), cancellationToken);
         });
     }
