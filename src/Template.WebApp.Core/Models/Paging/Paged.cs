@@ -22,7 +22,7 @@ public sealed class Paged<T> : IPaged, IPageOver, IEnumerable<T>
 
     public bool HasPrev => Page > 1;
 
-    public bool HasNext => (long)Page * Size < Count;
+    public bool HasNext => Page < TotalPage;
 
     public int TotalPage => Count == 0 ? 1 : (int)Math.Ceiling((decimal)Count / Size);
 

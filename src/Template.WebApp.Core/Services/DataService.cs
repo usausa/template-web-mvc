@@ -31,7 +31,12 @@ public sealed class DataService
     {
         var pattern = dialect.Match(name);
         var total = await dataAccessor.CountAsync(pattern, cancellationToken);
-        var items = await dataAccessor.QueryPageAsync(pattern, sort, desc, size, (long)page * size, cancellationToken);
+        if (page > total / size)
+        {
+            return new PagedResult<DataEntity>(total, page, size, []);
+        }
+
+        var items = await dataAccessor.QueryPageAsync(pattern, sort, desc, size, page * size, cancellationToken);
         return new PagedResult<DataEntity>(total, page, size, items);
     }
 
@@ -40,6 +45,11 @@ public sealed class DataService
     {
         var pattern = dialect.Match(name);
         var count = await dataAccessor.CountAsync(pattern, cancellationToken);
+        if (pageable.Page - 1 > count / pageable.Size)
+        {
+            return new Paged<DataEntity>(pageable, [], count);
+        }
+
         var items = await dataAccessor.QueryPageAsync(pattern, sort, desc, pageable.Size, pageable.Offset, cancellationToken);
         // ReSharper disable once UseCollectionExpression
         return new Paged<DataEntity>(pageable, items, count);
