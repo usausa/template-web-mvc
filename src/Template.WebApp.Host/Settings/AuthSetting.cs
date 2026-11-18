@@ -9,5 +9,6 @@ public sealed class AuthSetting
     public int ExpireMinutes { get; set; }
 
     [Required]
+    [ValidateObjectMembers]
     public InitialAccountOption InitialAccount { get; set; } = default!;
 }

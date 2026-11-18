@@ -6,7 +6,7 @@ public abstract class Pageable
 
     public int Size { get; set; }
 
-    public int Offset => (Page - 1) * Size;
+    public long Offset => (long)(Page - 1) * Size;
 }
 
 public static class PageableExtensions
