@@ -4,6 +4,7 @@ namespace Template.WebApp.Host.Areas.Default.Controllers;
 
 using System.Buffers.Text;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 
 using Template.WebApp.Host.Application.Identity;
@@ -45,7 +46,7 @@ public sealed class AccountController : BaseDefaultController
 
     [HttpPost]
     [AllowAnonymous]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Login([FromForm] AccountLoginForm form, string? returnUrl)
     {
         SignInResult result;
@@ -86,7 +87,7 @@ public sealed class AccountController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Logout()
     {
         await signInManager.SignOutAsync();
@@ -108,7 +109,7 @@ public sealed class AccountController : BaseDefaultController
 
     [HttpPost]
     [AllowAnonymous]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Register([FromForm] AccountRegisterForm form, string? returnUrl)
     {
         if (!ModelState.IsValid)
@@ -153,7 +154,7 @@ public sealed class AccountController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> AddPasskey([FromForm(Name = "Input")] PasskeyInputModel input)
     {
         var user = await userManager.GetUserAsync(User);
@@ -200,7 +201,7 @@ public sealed class AccountController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> DeletePasskey([FromForm] string credentialId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -233,7 +234,7 @@ public sealed class AccountController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> RenamePasskey([FromForm] PasskeyRenameForm form)
     {
         if (!ModelState.IsValid)

@@ -1,9 +1,7 @@
 @model AccountLoginForm
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     Layout = "_LayoutSimple";
     ViewData.SetTitle("ログイン");
-    var tokens = Antiforgery.GetAndStoreTokens(Context);
 }
 
 <div class="d-flex justify-content-center">
@@ -12,7 +10,7 @@
             <h4 class="mb-0">ログイン</h4>
         </div>
         <div class="card-body">
-            <form method="post" asp-antiforgery="true">
+            <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row mb-3">
                     <label asp-for="Name" class="col-form-label col-md-4">ID</label>
@@ -47,9 +45,7 @@
                         <passkey-submit
                             operation="Request"
                             name="Passkey"
-                            email-name="Name"
-                            request-token-name="@tokens.HeaderName"
-                            request-token-value="@tokens.RequestToken">
+                            email-name="Name">
                         </passkey-submit>
                     </div>
                 </div>

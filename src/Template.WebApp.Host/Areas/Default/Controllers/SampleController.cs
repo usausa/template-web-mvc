@@ -1,5 +1,7 @@
 namespace Template.WebApp.Host.Areas.Default.Controllers;
 
+using Microsoft.AspNetCore.Antiforgery;
+
 using Template.WebApp.Host.Areas.Default.Models;
 
 public sealed class SampleController : BaseDefaultController
@@ -15,7 +17,7 @@ public sealed class SampleController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public IActionResult Validation([FromForm] ValidationSampleForm form)
     {
         if (ModelState.IsValid)

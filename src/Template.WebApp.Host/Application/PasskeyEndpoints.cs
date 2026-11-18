@@ -18,11 +18,13 @@ public static class PasskeyEndpoints
             .RequireAuthorization()
             .WithName("PasskeyCreationOptions")
             .Produces(StatusCodes.Status200OK, contentType: "application/json")
+            .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound);
         group.MapPost("/request-options", HandleRequestOptionsAsync)
             .AllowAnonymous()
             .WithName("PasskeyRequestOptions")
-            .Produces(StatusCodes.Status200OK, contentType: "application/json");
+            .Produces(StatusCodes.Status200OK, contentType: "application/json")
+            .Produces(StatusCodes.Status400BadRequest);
     }
 
     //--------------------------------------------------------------------------------
@@ -30,13 +32,16 @@ public static class PasskeyEndpoints
     //--------------------------------------------------------------------------------
 
     // パスキー登録用オプション(WebAuthn creation options)を発行する
+    [RequireAntiforgeryToken]
     private static async ValueTask<IResult> HandleCreationOptionsAsync(
         HttpContext context,
         UserManager<AccountEntity> userManager,
-        SignInManager<AccountEntity> signInManager,
-        IAntiforgery antiforgery)
+        SignInManager<AccountEntity> signInManager)
     {
-        await antiforgery.ValidateRequestAsync(context);
+        if (context.Features.Get<IAntiforgeryValidationFeature>() is not { IsValid: true })
+        {
+            return TypedResults.BadRequest();
+        }
 
         var user = await userManager.GetUserAsync(context.User);
         if (user is null)
@@ -55,14 +60,17 @@ public static class PasskeyEndpoints
     }
 
     // パスキーログイン用オプション(WebAuthn request options)を発行する
+    [RequireAntiforgeryToken]
     private static async ValueTask<IResult> HandleRequestOptionsAsync(
         HttpContext context,
         UserManager<AccountEntity> userManager,
         SignInManager<AccountEntity> signInManager,
-        IAntiforgery antiforgery,
         [FromQuery] string? username)
     {
-        await antiforgery.ValidateRequestAsync(context);
+        if (context.Features.Get<IAntiforgeryValidationFeature>() is not { IsValid: true })
+        {
+            return TypedResults.BadRequest();
+        }
 
         var user = String.IsNullOrEmpty(username) ? null : await userManager.FindByNameAsync(username);
         var optionsJson = await signInManager.MakePasskeyRequestOptionsAsync(user);

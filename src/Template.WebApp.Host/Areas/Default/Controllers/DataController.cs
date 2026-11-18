@@ -2,6 +2,8 @@ namespace Template.WebApp.Host.Areas.Default.Controllers;
 
 using CsvHelper;
 
+using Microsoft.AspNetCore.Antiforgery;
+
 using Smart.AspNetCore.Mvc;
 using Smart.Mapper;
 
@@ -71,7 +73,7 @@ public sealed partial class DataController : BaseDefaultController
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Create([FromForm] DataEditForm form)
     {
         if (ModelState.IsValid)
@@ -110,7 +112,7 @@ public sealed partial class DataController : BaseDefaultController
     }
 
     [HttpPost("~/[controller]/[action]/{id:long}")]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Edit(long id, [FromForm] DataEditForm form)
     {
         if (ModelState.IsValid)
@@ -173,7 +175,7 @@ public sealed partial class DataController : BaseDefaultController
 
     [HttpPost("~/[controller]/[action]/{id:long}")]
     [Authorize(Policy = Policies.Administrator)]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Delete(long id)
     {
         if (await DataService.DeleteAsync(id) != DataWriteStatus.Success)

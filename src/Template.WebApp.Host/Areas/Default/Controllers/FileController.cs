@@ -1,5 +1,7 @@
 namespace Template.WebApp.Host.Areas.Default.Controllers;
 
+using Microsoft.AspNetCore.Antiforgery;
+
 using Template.WebApp.Host.Infrastructure.Filters;
 using Template.WebApp.Infrastructure.Storage;
 
@@ -29,7 +31,7 @@ public sealed class FileController : BaseDefaultController
     //--------------------------------------------------------------------------------
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     [RequestSizeLimit(10_485_760)]
     public async ValueTask<IActionResult> Upload(IFormFile? file, CancellationToken cancellationToken)
     {
@@ -72,7 +74,7 @@ public sealed class FileController : BaseDefaultController
 
     [HttpPost("~/[controller]/[action]/{**path}")]
     [Authorize(Policy = Policies.Administrator)]
-    [ValidateAntiForgeryToken]
+    [RequireAntiforgeryToken]
     public async ValueTask<IActionResult> Delete(string path, CancellationToken cancellationToken)
     {
         if (!await Storage.FileExistsAsync(path, cancellationToken))

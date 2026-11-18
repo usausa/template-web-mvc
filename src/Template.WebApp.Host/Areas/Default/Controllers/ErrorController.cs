@@ -13,11 +13,11 @@ public sealed class ErrorController : BaseDefaultController
     [HttpPost("~/error/{statusCode:int}")]
 #pragma warning disable CA5391
     // 表示専用のエラーページ。ReExecuteは元リクエストのメソッドを維持するためPOSTも受けるが、偽造防止トークン検証は不要
-    public IActionResult Index(int? statusCode)
+    public IActionResult Index()
     {
         return View(new ErrorViewModel
         {
-            StatusCode = statusCode ?? StatusCodes.Status500InternalServerError,
+            StatusCode = Int32.TryParse(RouteData.Values["statusCode"] as string, CultureInfo.InvariantCulture, out var statusCode) ? statusCode : StatusCodes.Status500InternalServerError,
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
         });
     }

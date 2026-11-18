@@ -10,6 +10,21 @@ public class TestApplicationFactory : WebApplicationFactory<Program>
     // 既存のテストは認証が効いている状態を前提にする。既定(appsettings)はオフのため明示する
     protected virtual bool AuthEnabled => true;
 
+    public Task<HttpClient> CreateAuthenticatedClientAsync() =>
+        CreateAuthenticatedClientAsync(new WebApplicationFactoryClientOptions());
+
+    public async Task<HttpClient> CreateAuthenticatedClientAsync(WebApplicationFactoryClientOptions options)
+    {
+        var client = CreateClient(options);
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Name"] = "admin",
+            ["Password"] = "admin"
+        });
+        await client.PostAsync(new Uri("/account/login", UriKind.Relative), form, TestContext.Current.CancellationToken);
+        return client;
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("http_ports", string.Empty);
