@@ -1,0 +1,68 @@
+@model ValidationSampleForm
+@{
+    ViewData.SetTitle("入力検証");
+}
+
+<h4 class="mb-3">入力検証</h4>
+
+<app-validation-summary></app-validation-summary>
+
+<form method="post">
+    <div class="row mb-3">
+        <label asp-for="Name" class="col-form-label col-sm-2">氏名</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="Code" class="col-form-label col-sm-2">コード</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="Code" class="form-control" />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="Phone" class="col-form-label col-sm-2">電話番号</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="Mail" class="col-form-label col-sm-2">メールアドレス</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="Mail" class="form-control" />
+            <span asp-validation-for="Mail" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-4 offset-sm-2">
+            <div class="form-check">
+                <input type="checkbox" asp-for="UsePeriod" class="form-check-input" />
+                <label asp-for="UsePeriod" class="form-check-label">期間を指定する</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="From" class="col-form-label col-sm-2">開始日</label>
+        <div class="col-sm-4">
+            <input type="date" asp-for="From" class="form-control" />
+            <span asp-validation-for="From" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="To" class="col-form-label col-sm-2">終了日</label>
+        <div class="col-sm-4">
+            <input type="date" asp-for="To" class="form-control" />
+            <span asp-validation-for="To" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">確認</button>
+    </div>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

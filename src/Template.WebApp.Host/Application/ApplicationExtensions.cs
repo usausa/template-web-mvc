@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -39,8 +40,10 @@ using Template.WebApp.Host.Application.ExceptionHandling;
 using Template.WebApp.Host.Application.HealthChecks;
 using Template.WebApp.Host.Application.Identity;
 using Template.WebApp.Host.Application.Telemetry;
+using Template.WebApp.Host.Application.Validation;
 using Template.WebApp.Host.Infrastructure.Logging;
 using Template.WebApp.Host.Infrastructure.Security;
+using Template.WebApp.Host.Infrastructure.Validation;
 using Template.WebApp.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Storage;
 
@@ -427,15 +430,18 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton<RequestMetricsActionFilter>();
         builder.Services.AddSingleton<ServiceContextResourceFilter>();
 
+        // Validation
+        builder.Services.AddSingleton<IValidationAttributeAdapterProvider, CustomValidationAttributeAdapterProvider>();
+
         // MVC
         builder.Services
             .AddControllersWithViews(static options =>
             {
                 options.Filters.AddTimeLogging();
                 options.Conventions.Add(new LowercaseControllerModelConvention());
-                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(static (_, y) => Messages.MakeInvalid(y));
             })
-            .AddJsonOptions(static options => ConfigureJsonSerializerOptions(options.JsonSerializerOptions));
+            .AddJsonOptions(static options => ConfigureJsonSerializerOptions(options.JsonSerializerOptions))
+            .AddJapaneseMessages();
 
         // Minimal API / OpenAPI
         builder.Services.ConfigureHttpJsonOptions(static options => ConfigureJsonSerializerOptions(options.SerializerOptions));

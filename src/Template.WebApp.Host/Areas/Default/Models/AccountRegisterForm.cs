@@ -4,15 +4,15 @@ namespace Template.WebApp.Host.Areas.Default.Models;
 
 public sealed class AccountRegisterForm
 {
-    [Required(ErrorMessage = Messages.Required)]
-    [MaxLength(Length.Name, ErrorMessage = Messages.MaxLength)]
+    [Required]
+    [MaxLength(Length.Name)]
     public string Name { get; set; } = default!;
 
-    [Required(ErrorMessage = Messages.Required)]
-    [MaxLength(Length.Password, ErrorMessage = Messages.MaxLength)]
+    [Required]
+    [MaxLength(Length.Password)]
     public string Password { get; set; } = default!;
 
-    [Required(ErrorMessage = Messages.Required)]
+    [Required]
     [Compare(nameof(Password), ErrorMessage = Messages.PasswordMismatch)]
     public string ConfirmPassword { get; set; } = default!;
 }

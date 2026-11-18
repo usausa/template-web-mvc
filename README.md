@@ -6,8 +6,8 @@
 
 | Category | Feature |
 | --- | --- |
-| UI | MVC (Areas, Razor views) / Bootstrap 5 / Client validation (jQuery Validation) / Sortable list and pager / Flash messages / Unsaved-change warning / Error pages |
-| API | Web API controllers (`/api`) / OpenAPI (Swagger UI, ReDoc) / Validation / ProblemDetails |
+| UI | MVC (Areas, Razor views) / Bootstrap 5 / Client validation (jQuery Validation, Shift_JIS byte length, character type) / Sortable list and pager / Flash messages / Unsaved-change warning / Error pages |
+| API | Web API controllers (`/api`) / OpenAPI (Swagger UI, ReDoc) / Validation (Shift_JIS byte length, character type, conditional and cross-property attributes) / ProblemDetails |
 | Auth | Identity without EF Core (Smart.Data.Accessor) / Cookie / Passkeys (WebAuthn) / Registration / Lockout / Role policy / Auth on/off switch |
 | Data | SQLite (Smart.Data.Accessor) / Paging, sorting, and search / CSV export (CsvHelper) / PDF report (OysterReport) / File storage |
 | HTTP | Compression (Brotli, Gzip) / Security headers (CSP nonce) / Forwarded headers / Antiforgery |

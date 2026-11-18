@@ -4,10 +4,10 @@ namespace Template.WebApp.Host.Areas.Default.Models;
 
 public sealed class PasskeyRenameForm
 {
-    [Required(ErrorMessage = Messages.Required)]
+    [Required]
     public string Id { get; set; } = default!;
 
-    [Required(ErrorMessage = Messages.Required)]
-    [MaxLength(Length.Name, ErrorMessage = Messages.MaxLength)]
+    [Required]
+    [MaxLength(Length.Name)]
     public string Name { get; set; } = default!;
 }

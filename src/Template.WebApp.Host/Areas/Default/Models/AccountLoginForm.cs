@@ -6,7 +6,7 @@ using Template.WebApp.Host.Application.Identity;
 
 public sealed class AccountLoginForm
 {
-    [Required(ErrorMessage = Messages.Required)]
+    [Required]
     public string Name { get; set; } = default!;
 
     // パスキーでのログイン時は空で送られる
