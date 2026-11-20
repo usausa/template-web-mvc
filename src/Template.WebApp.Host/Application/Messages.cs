@@ -18,9 +18,11 @@ public static class Messages
 
     public const string ByteMaxLength = "{1}バイト以内で入力してください";
 
-    public const string ByteLength = "{2}~{1}バイトで入力してください";
+    public const string ByteLength = "{1}~{2}バイトで入力してください";
 
     public const string ByteFixedLength = "{1}バイトで入力してください";
+
+    public const string Ms932Encodable = "使用できない文字が含まれています";
 
     public const string NoHalfWidthKana = "半角カナ以外で入力してください";
 
@@ -38,7 +40,13 @@ public static class Messages
 
     public const string NumericHyphen = "半角数字と-で入力してください";
 
+    public const string Katakana = "全角カタカナで入力してください";
+
+    public const string Hiragana = "ひらがなで入力してください";
+
     public const string Compare = "大小関係が正しくありません";
+
+    public const string EqualTo = "一致しません";
 
     public const string ElementRequired = "要素を入力してください";
 
@@ -52,7 +60,9 @@ public static class Messages
 
     public const string RequestBodyRequired = "本文を入力してください";
 
-    public static string MakeInvalid(string item) => $"{item}の形式が不正です";
+    public const string AttemptedValueIsInvalid = "{1}の形式が不正です";
+
+    public const string UnknownValueIsInvalid = "{0}の形式が不正です";
 
     // Account
 

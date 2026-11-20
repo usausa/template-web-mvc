@@ -1,21 +1,18 @@
 namespace Template.WebApp.Host.Areas.Default.Models;
 
-using BunnyTail.MemberAccessor;
+using Smart.ComponentModel.DataAnnotations;
 
-using Template.WebApp.Infrastructure.Validation;
-
-[GenerateAccessor]
 [AnyRequired(nameof(Phone), nameof(Mail))]
 public sealed class ValidationSampleForm
 {
-    [Ms932Length(20)]
-    [CharacterType(CharacterType.FullWidth)]
+    [Ms932MaxLength(20)]
+    [FullWidth]
     public string? Name { get; set; }
 
-    [CharacterType(CharacterType.UpperAlphanumeric)]
+    [UpperAlphanumeric]
     public string? Code { get; set; }
 
-    [CharacterType(CharacterType.NumericHyphen)]
+    [NumericHyphen]
     public string? Phone { get; set; }
 
     [EmailAddress]

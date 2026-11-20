@@ -3,27 +3,16 @@ namespace Template.WebApp.Host.Application.Validation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
+using Smart.ComponentModel.DataAnnotations.AspNetCore;
+
 public static class MvcBuilderExtensions
 {
+    private static readonly MessageLocalizer Localizer = new();
+
     public static IMvcBuilder AddJapaneseMessages(this IMvcBuilder builder)
     {
-        builder.AddMvcOptions(static options =>
-        {
-            var provider = options.ModelBindingMessageProvider;
-            provider.SetAttemptedValueIsInvalidAccessor(static (_, name) => Messages.MakeInvalid(name));
-            provider.SetNonPropertyAttemptedValueIsInvalidAccessor(static _ => Messages.InvalidFormat);
-            provider.SetUnknownValueIsInvalidAccessor(static name => Messages.MakeInvalid(name));
-            provider.SetNonPropertyUnknownValueIsInvalidAccessor(static () => Messages.InvalidFormat);
-            provider.SetValueIsInvalidAccessor(static _ => Messages.InvalidFormat);
-            provider.SetValueMustNotBeNullAccessor(static _ => Messages.Required);
-            provider.SetMissingBindRequiredValueAccessor(static _ => Messages.Required);
-            provider.SetMissingKeyOrValueAccessor(static () => Messages.Required);
-            provider.SetMissingRequestBodyRequiredValueAccessor(static () => Messages.RequestBodyRequired);
-            provider.SetValueMustBeANumberAccessor(static _ => Messages.Number);
-            provider.SetNonPropertyValueMustBeANumberAccessor(static () => Messages.Number);
-
-            options.ModelMetadataDetailsProviders.Add(new DefaultErrorMessageProvider());
-        });
+        builder.AddDataAnnotationsLocalization(static options => options.DataAnnotationLocalizerProvider = static (_, _) => Localizer);
+        builder.AddDefaultMessageLocalization();
         builder.AddJsonOptions(static options => options.AllowInputFormatterExceptionMessages = false);
         builder.ConfigureApiBehaviorOptions(static options => options.InvalidModelStateResponseFactory = CreateInvalidModelStateResponse);
 

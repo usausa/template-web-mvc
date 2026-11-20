@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -32,6 +31,7 @@ using Serilog;
 
 using Smart.AspNetCore;
 using Smart.AspNetCore.ApplicationModels;
+using Smart.ComponentModel.DataAnnotations.AspNetCore;
 using Smart.Data;
 
 using Template.WebApp.Accessors;
@@ -43,7 +43,6 @@ using Template.WebApp.Host.Application.Telemetry;
 using Template.WebApp.Host.Application.Validation;
 using Template.WebApp.Host.Infrastructure.Logging;
 using Template.WebApp.Host.Infrastructure.Security;
-using Template.WebApp.Host.Infrastructure.Validation;
 using Template.WebApp.Infrastructure.Security;
 using Template.WebApp.Infrastructure.Storage;
 
@@ -430,9 +429,6 @@ public static class ApplicationExtensions
         builder.Services.AddSingleton<RequestMetricsActionFilter>();
         builder.Services.AddSingleton<ServiceContextResourceFilter>();
 
-        // Validation
-        builder.Services.AddSingleton<IValidationAttributeAdapterProvider, CustomValidationAttributeAdapterProvider>();
-
         // MVC
         builder.Services
             .AddControllersWithViews(static options =>
@@ -441,6 +437,7 @@ public static class ApplicationExtensions
                 options.Conventions.Add(new LowercaseControllerModelConvention());
             })
             .AddJsonOptions(static options => ConfigureJsonSerializerOptions(options.JsonSerializerOptions))
+            .AddValidationAttributeAdapters()
             .AddJapaneseMessages();
 
         // Minimal API / OpenAPI
