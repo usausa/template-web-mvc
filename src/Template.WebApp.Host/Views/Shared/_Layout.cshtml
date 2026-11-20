@@ -24,8 +24,11 @@
                         <li class="nav-item @ViewContext.IsControllerActive("Default", "File").Active()">
                             <a class="nav-link" asp-area="default" asp-controller="File" asp-action="List">ファイル</a>
                         </li>
-                        <li class="nav-item @ViewContext.IsControllerActive("Default", "Sample").Active()">
+                        <li class="nav-item @ViewContext.IsActionActive("Default", "Sample", "Validation").Active()">
                             <a class="nav-link" asp-area="default" asp-controller="Sample" asp-action="Validation">入力検証</a>
+                        </li>
+                        <li class="nav-item @ViewContext.IsActionActive("Default", "Sample", "Conversion").Active()">
+                            <a class="nav-link" asp-area="default" asp-controller="Sample" asp-action="Conversion">入力変換</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

@@ -437,6 +437,7 @@ public static class ApplicationExtensions
                 options.Conventions.Add(new LowercaseControllerModelConvention());
             })
             .AddJsonOptions(static options => ConfigureJsonSerializerOptions(options.JsonSerializerOptions))
+            .AddKanaConvertModelBinder()
             .AddValidationAttributeAdapters()
             .AddJapaneseMessages();
 

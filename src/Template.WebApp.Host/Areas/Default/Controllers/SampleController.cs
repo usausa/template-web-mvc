@@ -29,4 +29,27 @@ public sealed class SampleController : BaseDefaultController
 
         return View(form);
     }
+
+    //--------------------------------------------------------------------------------
+    // Conversion
+    //--------------------------------------------------------------------------------
+
+    [HttpGet]
+    public IActionResult Conversion()
+    {
+        return View(new ConversionSampleForm());
+    }
+
+    [HttpPost]
+    [RequireAntiforgeryToken]
+    public IActionResult Conversion([FromForm] ConversionSampleForm form)
+    {
+        if (ModelState.IsValid)
+        {
+            ModelState.Clear();
+            TempData.SetMessage("変換した値で受け付けました");
+        }
+
+        return View(form);
+    }
 }
