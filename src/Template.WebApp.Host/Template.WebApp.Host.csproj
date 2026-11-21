@@ -28,8 +28,8 @@
     <PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageReference Include="Usa.Smart.AspNetCore" Version="3.1.0" />
-    <PackageReference Include="Usa.Smart.AspNetCore.Japanese" Version="3.1.0" />
+    <PackageReference Include="Usa.Smart.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Usa.Smart.AspNetCore.Japanese" Version="3.2.0" />
     <PackageReference Include="Usa.Smart.ComponentModel.DataAnnotations" Version="2.0.0" />
     <PackageReference Include="Usa.Smart.ComponentModel.DataAnnotations.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Usa.Smart.ComponentModel.DataAnnotations.Japanese" Version="2.0.0" />

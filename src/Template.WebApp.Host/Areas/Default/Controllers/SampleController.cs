@@ -46,7 +46,6 @@ public sealed class SampleController : BaseDefaultController
     {
         if (ModelState.IsValid)
         {
-            ModelState.Clear();
             TempData.SetMessage("変換した値で受け付けました");
         }
 

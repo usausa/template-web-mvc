@@ -17,7 +17,7 @@ public sealed class KanaConvertTagHelper : TagHelper
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         if ((For.Metadata is DefaultModelMetadata metadata) &&
-            (metadata.Attributes.PropertyAttributes?.OfType<KanaConvertAttribute>().FirstOrDefault() is { } attribute))
+            (metadata.Attributes.PropertyAttributes?.OfType<KanaConvertAttribute>().FirstOrDefault() is { ClientValidation: true } attribute))
         {
             output.Attributes.SetAttribute("data-kana-convert", attribute.Option.ToString());
         }

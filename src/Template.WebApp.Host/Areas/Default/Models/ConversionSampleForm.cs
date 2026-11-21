@@ -9,13 +9,26 @@ public sealed class ConversionSampleForm
     [KanaConvert(KanaOption.Wide)]
     [Ms932MaxLength(20)]
     [FullWidth]
-    public string? Name { get; set; }
+    public string? ServerName { get; set; }
 
     [KanaConvert(KanaOption.HankanaToKatakana | KanaOption.HiraganaToKatakana)]
     [Katakana]
-    public string? Kana { get; set; }
+    public string? ServerKana { get; set; }
 
     [KanaConvert(KanaOption.RomanToNarrow | KanaOption.NumericToNarrow)]
     [UpperAlphanumeric]
-    public string? Code { get; set; }
+    public string? ServerCode { get; set; }
+
+    [KanaConvert(KanaOption.Wide, ClientValidation = true)]
+    [Ms932MaxLength(20)]
+    [FullWidth]
+    public string? BrowserName { get; set; }
+
+    [KanaConvert(KanaOption.HankanaToKatakana | KanaOption.HiraganaToKatakana, ClientValidation = true)]
+    [Katakana]
+    public string? BrowserKana { get; set; }
+
+    [KanaConvert(KanaOption.RomanToNarrow | KanaOption.NumericToNarrow, ClientValidation = true)]
+    [UpperAlphanumeric]
+    public string? BrowserCode { get; set; }
 }

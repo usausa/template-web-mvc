@@ -8,25 +8,48 @@
 <app-validation-summary></app-validation-summary>
 
 <form method="post">
+    <h5 class="mb-3">サーバーで変換</h5>
     <div class="row mb-3">
-        <label asp-for="Name" class="col-form-label col-sm-2">氏名</label>
+        <label asp-for="ServerName" class="col-form-label col-sm-2">氏名</label>
         <div class="col-sm-4">
-            <input type="text" asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
+            <input type="text" asp-for="ServerName" class="form-control" />
+            <span asp-validation-for="ServerName" class="text-danger"></span>
         </div>
     </div>
     <div class="row mb-3">
-        <label asp-for="Kana" class="col-form-label col-sm-2">フリガナ</label>
+        <label asp-for="ServerKana" class="col-form-label col-sm-2">フリガナ</label>
         <div class="col-sm-4">
-            <input type="text" asp-for="Kana" class="form-control" />
-            <span asp-validation-for="Kana" class="text-danger"></span>
+            <input type="text" asp-for="ServerKana" class="form-control" />
+            <span asp-validation-for="ServerKana" class="text-danger"></span>
         </div>
     </div>
     <div class="row mb-3">
-        <label asp-for="Code" class="col-form-label col-sm-2">コード</label>
+        <label asp-for="ServerCode" class="col-form-label col-sm-2">コード</label>
         <div class="col-sm-4">
-            <input type="text" asp-for="Code" class="form-control" />
-            <span asp-validation-for="Code" class="text-danger"></span>
+            <input type="text" asp-for="ServerCode" class="form-control" />
+            <span asp-validation-for="ServerCode" class="text-danger"></span>
+        </div>
+    </div>
+    <h5 class="mt-4 mb-3">画面でも変換</h5>
+    <div class="row mb-3">
+        <label asp-for="BrowserName" class="col-form-label col-sm-2">氏名</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="BrowserName" class="form-control" />
+            <span asp-validation-for="BrowserName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="BrowserKana" class="col-form-label col-sm-2">フリガナ</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="BrowserKana" class="form-control" />
+            <span asp-validation-for="BrowserKana" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="BrowserCode" class="col-form-label col-sm-2">コード</label>
+        <div class="col-sm-4">
+            <input type="text" asp-for="BrowserCode" class="form-control" />
+            <span asp-validation-for="BrowserCode" class="text-danger"></span>
         </div>
     </div>
     <div class="mb-3">
