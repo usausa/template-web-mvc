@@ -1,7 +1,7 @@
 // ReSharper disable StringLiteralTypo
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.Template_WebApp_Host>("webapp")
+builder.AddDotnetProject("webapp", "../Template.WebApp.Host/Template.WebApp.Host.csproj")
     .WithHttpHealthCheck("/health");
 
 builder.Build().Run();

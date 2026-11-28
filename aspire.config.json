@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/Template.WebApp.AppHost/Template.WebApp.AppHost.csproj"
+  }
+}

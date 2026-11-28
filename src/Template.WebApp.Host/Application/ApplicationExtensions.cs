@@ -403,6 +403,7 @@ public static class ApplicationExtensions
     {
         builder.Services.AddOpenApi(static options =>
         {
+            options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
             options.AddDocumentTransformer(static (document, _, _) =>
             {
                 document.Info.Title = "Template API";
